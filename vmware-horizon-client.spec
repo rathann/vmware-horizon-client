@@ -95,16 +95,16 @@ bash %{S:0} -x %{_builddir}/%{name}-%{version}
 cd %{_builddir}/%{name}-%{version}
 cp -p %{S:1} %{S:2} ./
 %patch0 -p1
-chrpath -d vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector
 chrpath -d vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
-execstack -c vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so
+chrpath -d vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector
 execstack -c vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
-execstack -c vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/libviewMPClient.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/libmksvchanclient.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/libvdpservice.so
+execstack -c vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/libmksvchanclient.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/librdeSvc.so
+execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/libviewMPClient.so
+execstack -c vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
+execstack -c vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so
 
 %build
 
