@@ -89,10 +89,9 @@ Provides: bundled(thinprint) = 10.0.141
 Virtual Printing support plugin for VMware Horizon Client.
 
 %prep
-%setup -qcT
-rmdir %{_builddir}/%{name}-%{version}
+rm -rf %{_builddir}/%{name}-%{version}
 bash %{S:0} -x %{_builddir}/%{name}-%{version}
-cd %{_builddir}/%{name}-%{version}
+%setup -qDT
 cp -p %{S:1} %{S:2} ./
 %patch0 -p1
 chrpath -d vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
@@ -109,7 +108,6 @@ execstack -c vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so
 %build
 
 %install
-#cd %{_builddir}/%{name}-%{version}
 install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/vdp/host_overlay_plugins,-vix}
 install -dm0755 %{buildroot}%{_bindir}
 install -dm0755 %{buildroot}%{_unitdir}
