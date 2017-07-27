@@ -1,18 +1,17 @@
 %undefine _missing_build_ids_terminate_build
-%global ver 4.4.0
-%global rel 5167967
+%global ver 4.5.0
+%global rel 5650368
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
 Release: 1
 URL: https://www.vmware.com/products/horizon.html
-Source0: https://download3.vmware.com/software/view/viewclients/CART17Q1/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
-Source1: https://pubs.vmware.com/Release_Notes/en/horizon-client/horizon-client-linux-44-release-notes.html
-Source2: https://www.vmware.com/pdf/horizon-view/horizon-client-linux-44-document.pdf
+Source0: https://download3.vmware.com/software/view/viewclients/CART17Q2/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
+Source1: https://pubs.vmware.com/Release_Notes/en/horizon-client/45/horizon-client-linux-45-release-notes.html
+Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/4.5/horizon-client-linux-45-document.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
-Source12: vmware-view-usbd.service
 Patch0: %{name}-desktop.patch
 License: VMware
 ExclusiveArch: x86_64
@@ -21,13 +20,21 @@ BuildRequires: desktop-file-utils
 BuildRequires: execstack
 BuildRequires: systemd
 Provides: bundled(mechanical-fonts) = 1.00
+Provides: bundled(boost) = 1.61
+Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.12.0
-Provides: bundled(curl) = 7.52.1
-Provides: bundled(icu) = 58.1
+Provides: bundled(curl) = 7.54.0
+Provides: bundled(hidapi) = 0.8.9
+Provides: bundled(icu) = 59.1
+Provides: bundled(json-c) = 0.12.1
+Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libpng12) = 1.2.57
+Provides: bundled(libsrtp) = 2.1.0.0-pre
+Provides: bundled(libwebrtc) = 90
 Provides: bundled(openssl) = 1.0.2k
 Provides: bundled(opus) = 1.1.4
-Provides: bundled(zlib) = 1.2.3
+Provides: bundled(speex) = 1.2rc3
+Provides: bundled(zlib) = 1.2.8
 Provides: bundled(atk) = 1.9.0
 
 %global __provides_exclude ^lib\(tsmmrClient\|mksvchanclient\|pcoip_client\|rdeSvc\|rdpvcbridge\|scredirvchanclient\|tsdrClient\|udpProxyLib\|vdpservice\|viewMMDevRedir\|viewMPClient\)\\.so.*\|lib\(crypto\|ssl\)\\.so\\.1\\.0\\.2.*$
@@ -47,7 +54,7 @@ Multimedia Redirection support plugin for VMware Horizon Client.
 Summary: PCoIP support plugin for VMware Horizon Client
 Requires: freerdp1.2
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.45
+Provides: bundled(pcoip-soft-clients) = 3.47
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
@@ -83,7 +90,7 @@ USB Redirection support plugin for VMware Horizon Client.
 %package virtual-printing
 Summary: Virtual Printing support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.141
+Provides: bundled(thinprint) = 10.0.142
 
 %description virtual-printing
 Virtual Printing support plugin for VMware Horizon Client.
@@ -104,6 +111,8 @@ execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/librdeSvc.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/libviewMPClient.so
 execstack -c vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 execstack -c vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so
+# work around debugedit bug (https://bugzilla.redhat.com/show_bug.cgi?id=304121)
+sed -i -e 's,RHEL5//,RHEL59/,g' vmware-horizon-pcoip/pcoip/bin/vmware-remotemks
 
 %build
 
@@ -124,7 +133,7 @@ install -dm0755 %{buildroot}%{_var}/log/vmware
 echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware/bootstrap
 echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware-vix/bootstrap
 
-install -pm0755 vmware-horizon-client/bin/vmware-view{,-lib-scan,-log-collector} %{buildroot}%{_bindir}
+install -pm0755 vmware-horizon-client/bin/vmware-view{,-lib-scan,-log-collector,-usbdloader} %{buildroot}%{_bindir}
 cp -pr vmware-horizon-client/share/* %{buildroot}%{_datadir}
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 install -pm0755 vmware-horizon-client/lib/vmware/view/bin/vmware-view %{buildroot}%{_prefix}/lib/vmware/view/bin
@@ -148,11 +157,11 @@ install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchan
 
 install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
-install -pm0755 vmware-horizon-usb/bin/vmware-{usbarbitrator,view-usbd} %{buildroot}%{_prefix}/lib/vmware/view/usb
+install -pm0755 vmware-horizon-usb/bin/{vmware-usbarbitrator,libvmware-view-usbd.so} %{buildroot}%{_prefix}/lib/vmware/view/usb
+
 ln -s %{_prefix}/lib/vmware/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
-ln -s %{_prefix}/lib/vmware/usb/vmware-view-usbd %{buildroot}%{_bindir}
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
-install -pm0644 %{S:11} %{S:12} %{buildroot}%{_unitdir}
+install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 
 #install -pm0755 vmware-horizon-virtual-printing/
 
@@ -172,7 +181,7 @@ install -pm0644 %{S:11} %{S:12} %{buildroot}%{_unitdir}
 %license %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
 %license %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
 %license %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
-%doc horizon-client-linux-44-release-notes.html horizon-client-linux-44-document.pdf
+%doc horizon-client-linux-45-release-notes.html horizon-client-linux-45-document.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
 %dir %{_sysconfdir}/vmware/vdp
@@ -181,6 +190,7 @@ install -pm0644 %{S:11} %{S:12} %{buildroot}%{_unitdir}
 %{_bindir}/vmware-view
 %{_bindir}/vmware-view-lib-scan
 %{_bindir}/vmware-view-log-collector
+%{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
@@ -228,12 +238,10 @@ install -pm0644 %{S:11} %{S:12} %{buildroot}%{_unitdir}
 %files usb
 %attr(0640,root,root) %config(noreplace) %{_sysconfdir}/vmware/usbarb.rules
 %{_unitdir}/vmware-usbarbitrator.service
-%{_unitdir}/vmware-view-usbd.service
 %{_bindir}/vmware-usbarbitrator
-%{_bindir}/vmware-view-usbd
 %dir %{_prefix}/lib/vmware/view/usb
 %{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator
-%{_prefix}/lib/vmware/view/usb/vmware-view-usbd
+%{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
 
 %if 0
 %files virtual-printing
@@ -274,5 +282,10 @@ install -pm0644 %{S:11} %{S:12} %{buildroot}%{_unitdir}
 %endif
 
 %changelog
+* Thu Jul 27 2017 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.5.0.5650368-1
+- update to 4.5.0 build 5650368
+- update source URL and bundled components
+- work around debugedit bug
+
 * Tue Mar 28 2017 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.4.0.5167967-1
 - initial build
