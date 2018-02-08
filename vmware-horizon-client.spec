@@ -200,7 +200,7 @@ install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so 
 
 install -pm0755 vmware-horizon-usb/bin/{vmware-usbarbitrator,libvmware-view-usbd.so} %{buildroot}%{_prefix}/lib/vmware/view/usb
 
-ln -s %{_prefix}/lib/vmware/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
+ln -s %{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 
