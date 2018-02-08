@@ -109,7 +109,11 @@ Client Drive Redirection support plugin for VMware Horizon Client.
 
 %package usb
 Summary: USB Redirection support plugin for VMware Horizon Client
+BuildRequires: systemd
+%{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
+Requires(post): %{_sbindir}/semodule
+Requires(postun): %{_sbindir}/semodule
 
 %description usb
 USB Redirection support plugin for VMware Horizon Client.
@@ -211,6 +215,31 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+
+%post usb
+TMPDIR=$(%{_bindir}/mktemp -d)
+cat >> $TMPDIR/%{name}-usb-rpm.cil << __EOF__
+(typeattributeset cil_gen_require init_t)
+(typeattributeset cil_gen_require var_log_t)
+(typeattributeset cil_gen_require vmware_sys_conf_t)
+(allow init_t var_log_t (file (create unlink)))
+(allow init_t vmware_sys_conf_t (dir (add_name remove_name write)))
+(allow init_t vmware_sys_conf_t (file (create rename setattr unlink write)))
+__EOF__
+%{_sbindir}/semodule -i $TMPDIR/%{name}-usb-rpm.cil
+rm $TMPDIR/%{name}-usb-rpm.cil
+rmdir $TMPDIR
+%systemd_post vmware-usbarbitrator.service
+exit 0
+
+%preun usb
+%systemd_preun vmware-usbarbitrator.service
+
+%postun usb
+%systemd_postun_with_restart vmware-usbarbitrator.service
+if [ $1 -eq 0 ]; then
+  %{_sbindir}/semodule -r %{name}-usb-rpm || :
+fi
 
 %files -f %{_builddir}/%{name}-%{version}/vmware-view.lang
 %license vmware-horizon-client/doc/open_source_licenses.txt
@@ -339,6 +368,7 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 - update to 4.7.0 build 7395152
 - include Seamless Window Feature in the main package
 - update bundled components list
+- add SELinux policy for usbarbitrator
 
 * Thu Nov 23 2017 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.6.0.6617224-1
 - update to 4.6.0 build 6617224
