@@ -1,7 +1,14 @@
 %undefine _missing_build_ids_terminate_build
-%global cart CART18FQ3
-%global ver 4.6.0
-%global rel 6617224
+%if 0%{?fedora} >= 27
+%undefine _debugsource_packages
+%undefine _unique_build_ids
+%global _no_recompute_build_ids 1
+%endif
+%global cart   CART18FQ4
+%global ver    4.7.0
+%global docv   %(n=%{ver}; echo ${n%.0})
+%global docvnd %(n=%{docv}; echo ${n/.})
+%global rel    7395152
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -10,8 +17,8 @@ Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
-Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/4.6/rn/horizon-client-linux-46-release-notes.html
-Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/4.6/linux-client-installation.pdf
+Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/rn/horizon-client-linux-%{docvnd}-release-notes.html
+Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Patch0: %{name}-desktop.patch
@@ -21,27 +28,36 @@ BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: execstack
 BuildRequires: systemd
-Provides: bundled(mechanical-fonts) = 1.00
+Provides: bundled(atk) = 1.9.0
+Provides: bundled(atk) = 1.30.0
 Provides: bundled(boost) = 1.61
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.54.1
+Provides: bundled(curl) = 7.56.0
+Provides: bundled(glibmm) = 2.44.0
+Provides: bundled(gtkmm) = 2.20.1
+Provides: bundled(hal) = 0.5.12
 Provides: bundled(hidapi) = 0.8.9
-Provides: bundled(icu) = 59.1
+Provides: bundled(icu) = 56.1
+Provides: bundled(icu) = 60.1
 Provides: bundled(json-c) = 0.12.1
 Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libpng12) = 1.2.57
 Provides: bundled(libsrtp) = 2.1.0.0-pre
 Provides: bundled(libwebrtc) = 90
-Provides: bundled(openssl) = 1.0.2l
-Provides: bundled(opus) = 1.1.4
+Provides: bundled(libxml2) = 2.9.6
+Provides: bundled(mechanical-fonts) = 1.00
+Provides: bundled(openssl) = 1.0.2m
+Provides: bundled(opus) = 1.0.1
+Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(speex) = 1.2rc3
+Provides: bundled(zlib) = 1.2.3
 Provides: bundled(zlib) = 1.2.8
 Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
-%global __provides_exclude ^lib\(tsmmrClient\|mksvchanclient\|pcoip_client\|rdeSvc\|rdpvcbridge\|scredirvchanclient\|tsdrClient\|udpProxyLib\|vdpservice\|viewMMDevRedir\|viewMPClient\|V264\|VMWMediaProvider\|vmware-view-usbd\)\\.so.*\|lib\(crypto\|ssl\)\\.so\\.1\\.0\\.2.*$
-%global __requires_exclude ^lib\(\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|ffi\\.so\\.5).*$
+%global __provides_exclude ^lib\(crtbora\|mksvchanclient\|pcoip_client\|rdeSvc\|rdpvcbridge\|scredirvchanclient\|tsdrClient\|tsmmrClient\|udpProxyLib\|vdpservice\|viewMMDevRedir\|viewMPClient\|vmware-view-usbd\|vmwarebase\|V264\|VMWMediaProvider\)\\.so.*\|lib\(crypto\|ssl\)\\.so\\.1\\.0\\.2.*$
+%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|ffi\\.so\\.5\|udev\\.so\\.0\|vmwarebase\\.so\\.0).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -65,7 +81,7 @@ Summary: PCoIP support plugin for VMware Horizon Client
 Requires: freerdp1.2
 Requires: libffi.so.6()(64bit)
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.49
+Provides: bundled(pcoip-soft-clients) = 3.51
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
@@ -101,7 +117,7 @@ USB Redirection support plugin for VMware Horizon Client.
 %package virtual-printing
 Summary: Virtual Printing support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.153
+Provides: bundled(thinprint) = 10.0.155
 
 %description virtual-printing
 Virtual Printing support plugin for VMware Horizon Client.
@@ -114,6 +130,7 @@ cp -p %{S:1} %{S:2} ./
 %patch0 -p1
 chrpath -d vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
 chrpath -d vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector
+chrpath -d vmware-horizon-seamless-window/lib/vmware/libcrtbora.so
 execstack -c vmware-horizon-media-provider/lib/libV264.so
 execstack -c vmware-horizon-media-provider/lib/libVMWMediaProvider.so
 execstack -c vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
@@ -173,6 +190,10 @@ install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so %{buildr
 
 install -pm0755 vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 
+install -pm0755 vmware-horizon-seamless-window/vmware-view-crtbora %{buildroot}%{_prefix}/lib/vmware/view/bin
+install -pm0755 vmware-horizon-seamless-window/lib/vmware/libcrtbora.so %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-seamless-window/lib/vmware/libvmwarebase.so.0 %{buildroot}%{_prefix}/lib/vmware
+
 install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchanclient.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 
 install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
@@ -201,7 +222,8 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %license %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
 %license %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
 %license %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
-%doc horizon-client-linux-46-release-notes.html linux-client-installation.pdf
+%doc horizon-client-linux-%{docvnd}-release-notes.html
+%doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
 %dir %{_sysconfdir}/vmware/vdp
@@ -212,14 +234,17 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
+%{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
+%{_prefix}/lib/vmware/libvmwarebase.so.0
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
+%{_prefix}/lib/vmware/view/bin/vmware-view-crtbora
 %dir %{_prefix}/lib/vmware/view/pkcs11
 %dir %{_prefix}/lib/vmware/view/vdpService
 %{_datadir}/applications/vmware-view.desktop
@@ -310,6 +335,11 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %endif
 
 %changelog
+* Thu Feb 08 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.7.0.7395152-1
+- update to 4.7.0 build 7395152
+- include Seamless Window Feature in the main package
+- update bundled components list
+
 * Thu Nov 23 2017 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.6.0.6617224-1
 - update to 4.6.0 build 6617224
 - update bundled components list
