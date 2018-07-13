@@ -4,11 +4,11 @@
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
 %endif
-%global cart   CART18FQ4
-%global ver    4.7.0
+%global cart   CART19FQ2
+%global ver    4.8.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    7395152
+%global rel    8518891
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -57,7 +57,7 @@ Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude ^lib\(crtbora\|mksvchanclient\|pcoip_client\|rdeSvc\|rdpvcbridge\|scredirvchanclient\|tsdrClient\|tsmmrClient\|udpProxyLib\|vdpservice\|viewMMDevRedir\|viewMPClient\|vmware-view-usbd\|vmwarebase\|V264\|VMWMediaProvider\)\\.so.*\|lib\(crypto\|ssl\)\\.so\\.1\\.0\\.2.*$
-%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|ffi\\.so\\.5\|udev\\.so\\.0\|vmwarebase\\.so\\.0).*$
+%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|ffi\\.so\\.5\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -196,13 +196,14 @@ install -pm0755 vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 
 install -pm0755 vmware-horizon-seamless-window/vmware-view-crtbora %{buildroot}%{_prefix}/lib/vmware/view/bin
 install -pm0755 vmware-horizon-seamless-window/lib/vmware/libcrtbora.so %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-seamless-window/lib/vmware/libvmwarebase.so.0 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-seamless-window/lib/vmware/libvmwarebase.so %{buildroot}%{_prefix}/lib/vmware
 
 install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchanclient.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 
 install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
 install -pm0755 vmware-horizon-usb/bin/{vmware-usbarbitrator,libvmware-view-usbd.so} %{buildroot}%{_prefix}/lib/vmware/view/usb
+install -pm0755 vmware-horizon-usb/lib/vmware/view/vdpService/libusbRedirectionClient.so  %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
 ln -s %{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
@@ -269,7 +270,7 @@ fi
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
-%{_prefix}/lib/vmware/libvmwarebase.so.0
+%{_prefix}/lib/vmware/libvmwarebase.so
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
@@ -325,6 +326,7 @@ fi
 %dir %{_prefix}/lib/vmware/view/usb
 %{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator
 %{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
+%{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %if 0
 %files virtual-printing
@@ -365,6 +367,9 @@ fi
 %endif
 
 %changelog
+* Fri Jul 13 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.8.0.8518891-1
+- update to 4.8.0 build 8518891
+
 * Thu Feb 08 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.7.0.7395152-1
 - update to 4.7.0 build 7395152
 - include Seamless Window Feature in the main package
