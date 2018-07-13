@@ -1,11 +1,10 @@
 [Unit]
 Description=VMware USB Arbitration Service. Allows USB devices plugged into the HOST to be usable by the guest.
-Documentation=man:vmware-usbarbitrator(8)
 
 [Service]
 EnvironmentFile=/etc/vmware/bootstrap
-Type=forking
-ExecStart=/usr/bin/vmware-usbarbitrator
+Type=simple
+ExecStart=/usr/bin/vmware-usbarbitrator -f
 ExecStop=/usr/bin/vmware-usbarbitrator --kill
 
 [Install]
