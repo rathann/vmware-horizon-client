@@ -1,5 +1,5 @@
 %undefine _missing_build_ids_terminate_build
-%if 0%{?fedora} >= 27
+%if 0%{?fedora}
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
