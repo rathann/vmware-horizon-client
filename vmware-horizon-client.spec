@@ -222,6 +222,7 @@ TMPDIR=$(%{_bindir}/mktemp -d)
 cat >> $TMPDIR/%{name}-usb-rpm.cil << __EOF__
 (typeattributeset cil_gen_require init_t)
 (typeattributeset cil_gen_require var_log_t)
+(typeattributeset cil_gen_require vmware_log_t)
 (typeattributeset cil_gen_require vmware_sys_conf_t)
 (allow init_t var_log_t (file (create unlink)))
 (allow init_t vmware_log_t (file (getattr unlink)))
