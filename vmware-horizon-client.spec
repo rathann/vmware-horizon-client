@@ -4,11 +4,11 @@
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
 %endif
-%global cart   CART19FQ2
-%global ver    4.8.0
+%global cart   CART19FQ3
+%global ver    4.9.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    8518891
+%global rel    9507999
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -21,6 +21,7 @@ Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/rn/h
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
+Source12: vmware-ftsprhvd.service
 Patch0: %{name}-desktop.patch
 License: VMware
 ExclusiveArch: x86_64
@@ -92,6 +93,14 @@ Requires: %{name}-pcoip = %{version}-%{release}
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
+
+%package serialportclient
+Summary: Serial port redirection support plugin for VMware Horizon Client
+Requires: %{name} = %{version}-%{release}
+Requires: libudev.so.1()(64bit)
+
+%description serialportclient
+Serial port redirection support plugin for VMware Horizon Client.
 
 %package smartcard
 Summary: SmartCard authentication support plugin for VMware Horizon Client
@@ -198,6 +207,10 @@ install -pm0755 vmware-horizon-seamless-window/vmware-view-crtbora %{buildroot}%
 install -pm0755 vmware-horizon-seamless-window/lib/vmware/libcrtbora.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-seamless-window/lib/vmware/libvmwarebase.so %{buildroot}%{_prefix}/lib/vmware
 
+install -pm0755 vmware-horizon-serialportclient/bin/ftsprhvd %{buildroot}%{_prefix}/lib/vmware/view/bin
+install -pm0755 vmware-horizon-serialportclient/lib/vmware/rdpvcbridge/ftnlses3hv.so %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
+install -pm0644 %{S:12} %{buildroot}%{_unitdir}
+
 install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchanclient.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 
 install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
@@ -216,6 +229,16 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+
+%post serialportclient
+%systemd_post vmware-ftsprhvd.service
+exit 0
+
+%preun serialportclient
+%systemd_preun vmware-ftsprhvd.service
+
+%postun serialportclient
+%systemd_postun_with_restart vmware-ftsprhvd.service
 
 %post usb
 TMPDIR=$(%{_bindir}/mktemp -d)
@@ -314,6 +337,12 @@ fi
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 
+%files serialportclient
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/ftsprhv.db
+%{_prefix}/lib/vmware/view/bin/ftsprhvd
+%{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
+%{_unitdir}/vmware-ftsprhvd.service
+
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
 
@@ -368,6 +397,10 @@ fi
 %endif
 
 %changelog
+* Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
+- update to 4.9.0 build 9507999
+- include Serial Port Redirection feature
+
 * Fri Jul 13 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.8.0.8518891-1
 - update to 4.8.0 build 8518891
 

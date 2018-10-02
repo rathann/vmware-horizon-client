@@ -1,0 +1,9 @@
+[Unit]
+Description=VMware Serial Port Redirection Service. Allows serial ports from the HOST to be usable by the guest.
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/vmware/view/bin/ftsprhvd -D
+
+[Install]
+WantedBy=multi-user.target
