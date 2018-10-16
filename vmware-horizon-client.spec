@@ -13,7 +13,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 1
+Release: 2
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -192,6 +192,7 @@ install -pm0755 vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so 
 
 install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector %{buildroot}%{_bindir}
 install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-remotemks{,-container} %{buildroot}%{_bindir}
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 ln %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
@@ -326,6 +327,7 @@ fi
 %{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so
 %{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
 %{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
+%{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libffi.so.5
 %{_prefix}/lib/vmware/libpcoip_client.so
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
@@ -397,6 +399,9 @@ fi
 %endif
 
 %changelog
+* Tue Oct 16 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-2
+- add missing libcoreavc_sdk.so library in pcoip subpackage
+
 * Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
 - update to 4.9.0 build 9507999
 - include Serial Port Redirection feature
