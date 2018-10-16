@@ -57,7 +57,7 @@ Provides: bundled(zlib) = 1.2.8
 Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
-%global __provides_exclude ^lib\(crtbora\|mksvchanclient\|pcoip_client\|rdeSvc\|rdpvcbridge\|scredirvchanclient\|tsdrClient\|tsmmrClient\|udpProxyLib\|vdpservice\|viewMMDevRedir\|viewMPClient\|vmware-view-usbd\|vmwarebase\|V264\|VMWMediaProvider\)\\.so.*\|lib\(crypto\|ssl\)\\.so\\.1\\.0\\.2.*$
+%global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
 %global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|ffi\\.so\\.5\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
 
 %description
@@ -401,6 +401,7 @@ fi
 %changelog
 * Tue Oct 16 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-2
 - add missing libcoreavc_sdk.so library in pcoip subpackage
+- simplify Provides: filtering
 
 * Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
 - update to 4.9.0 build 9507999
