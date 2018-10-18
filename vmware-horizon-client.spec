@@ -310,6 +310,7 @@ fi
 %{_var}/log/vmware
 
 %files media-provider
+%dir %{_prefix}/lib/vmware/mediaprovider
 %{_prefix}/lib/vmware/mediaprovider/libV264.so
 %{_prefix}/lib/vmware/mediaprovider/libVMWMediaProvider.so
 
@@ -402,6 +403,7 @@ fi
 * Tue Oct 16 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-2
 - add missing libcoreavc_sdk.so library in pcoip subpackage
 - simplify Provides: filtering
+- fix unowned dir /usr/lib/vmware/mediaprovider
 
 * Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
 - update to 4.9.0 build 9507999
