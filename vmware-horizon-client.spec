@@ -23,6 +23,7 @@ Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source12: vmware-ftsprhvd.service
 Patch0: %{name}-desktop.patch
+Patch1: %{name}-wrapper.patch
 License: VMware
 ExclusiveArch: x86_64
 BuildRequires: chrpath
@@ -94,6 +95,13 @@ Requires: %{name}-pcoip = %{version}-%{release}
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
 
+%package seamless-window
+Summary: Seamless Window Feature plugin for VMware Horizon Client
+Requires: %{name} = %{version}-%{release}
+
+%description seamless-window
+Seamless Window Feature plugin for VMware Horizon Client.
+
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
@@ -141,6 +149,7 @@ bash %{S:0} -x %{_builddir}/%{name}-%{version}
 %setup -qDT
 cp -p %{S:1} %{S:2} ./
 %patch0 -p1
+%patch1 -p1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libcairomm-1.0.so.1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libgiomm-2.4.so.1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libglibmm-2.4.so.1
@@ -284,17 +293,14 @@ fi
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
-%{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
-%{_prefix}/lib/vmware/libvmwarebase.so
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
-%{_prefix}/lib/vmware/view/bin/vmware-view-crtbora
 %dir %{_prefix}/lib/vmware/view/pkcs11
 %dir %{_prefix}/lib/vmware/view/vdpService
 %{_datadir}/applications/vmware-view.desktop
@@ -333,6 +339,11 @@ fi
 
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
+
+%files seamless-window
+%{_prefix}/lib/vmware/libcrtbora.so
+%{_prefix}/lib/vmware/libvmwarebase.so
+%{_prefix}/lib/vmware/view/bin/vmware-view-crtbora
 
 %files serialportclient
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/ftsprhv.db
@@ -399,6 +410,8 @@ fi
 - simplify Provides: filtering
 - fix unowned dir /usr/lib/vmware/mediaprovider
 - use chrpath and execstack only files which need it
+- move Seamless Window Feature plugin to a subpackage and patch the wrapper
+  to use it only if installed
 
 * Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
 - update to 4.9.0 build 9507999

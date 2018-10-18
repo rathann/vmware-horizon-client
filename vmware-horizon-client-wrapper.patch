@@ -1,0 +1,12 @@
+diff -up vmware-horizon-client-4.9.0.9507999/vmware-horizon-client/bin/vmware-view.orig vmware-horizon-client-4.9.0.9507999/vmware-horizon-client/bin/vmware-view
+--- vmware-horizon-client-4.9.0.9507999/vmware-horizon-client/bin/vmware-view.orig	2018-10-18 10:11:34.082958109 +0200
++++ vmware-horizon-client-4.9.0.9507999/vmware-horizon-client/bin/vmware-view	2018-10-18 10:34:22.654390678 +0200
+@@ -23,7 +23,7 @@ else
+ fi
+ 
+ binFile=
+-if [[ $ROLLBACK_VMWAREVIEW = "" ]] && [ $cpu -eq 0 ]; then
++if [[ $ROLLBACK_VMWAREVIEW = "" ]] && [ $cpu -eq 0 ] && [ -x "$binPath/bin/vmware-view-crtbora" ]; then
+    binFile="vmware-view-crtbora"
+ else
+    binFile="vmware-view"
