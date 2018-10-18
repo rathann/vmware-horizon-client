@@ -141,19 +141,13 @@ bash %{S:0} -x %{_builddir}/%{name}-%{version}
 %setup -qDT
 cp -p %{S:1} %{S:2} ./
 %patch0 -p1
-chrpath -d vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
-chrpath -d vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector
-chrpath -d vmware-horizon-seamless-window/lib/vmware/libcrtbora.so
+chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libcairomm-1.0.so.1
+chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libgiomm-2.4.so.1
+chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libglibmm-2.4.so.1
+chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libgtkmm-2.4.so.1
 execstack -c vmware-horizon-media-provider/lib/libV264.so
 execstack -c vmware-horizon-media-provider/lib/libVMWMediaProvider.so
-execstack -c vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/libvdpservice.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/libmksvchanclient.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/librdeSvc.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/libviewMPClient.so
-execstack -c vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
-execstack -c vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so
+execstack -c vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so
 
 %build
 
@@ -404,6 +398,7 @@ fi
 - add missing libcoreavc_sdk.so library in pcoip subpackage
 - simplify Provides: filtering
 - fix unowned dir /usr/lib/vmware/mediaprovider
+- use chrpath and execstack only files which need it
 
 * Mon Oct 01 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-1
 - update to 4.9.0 build 9507999
