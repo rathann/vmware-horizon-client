@@ -13,7 +13,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 2
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -59,7 +59,7 @@ Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|ffi\\.so\\.5\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
+%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -81,7 +81,6 @@ Multimedia Redirection support plugin for VMware Horizon Client.
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
 Requires: freerdp1.2
-Requires: libffi.so.6()(64bit)
 Requires: %{name} = %{version}-%{release}
 Provides: bundled(pcoip-soft-clients) = 3.51
 
@@ -161,7 +160,7 @@ execstack -c vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so
 %build
 
 %install
-install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/vdp/host_overlay_plugins,-vix}
+install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
 install -dm0755 %{buildroot}%{_bindir}
 install -dm0755 %{buildroot}%{_unitdir}
 install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
@@ -185,7 +184,6 @@ install -pm0644 vmware-horizon-client/extras/artwork/linux_view_128x.png %{build
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 install -pm0755 vmware-horizon-client/lib/vmware/view/bin/vmware-view %{buildroot}%{_prefix}/lib/vmware/view/bin
 ln -s %{_libdir}/libudev.so.1 %{buildroot}%{_prefix}/lib/vmware/libudev.so.0
-ln -s %{_libdir}/libffi.so.6 %{buildroot}%{_prefix}/lib/vmware/libffi.so.5
 
 install -pm0755 vmware-horizon-media-provider/lib/libV264.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -pm0755 vmware-horizon-media-provider/lib/libVMWMediaProvider.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
@@ -285,6 +283,9 @@ fi
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/vmware/view-keycombos-config
+%dir %{_sysconfdir}/vmware/udpProxy
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/vmware/udpProxy/config
 %dir %{_sysconfdir}/vmware/vdp
 %dir %{_sysconfdir}/vmware-vix
 %config %{_sysconfdir}/vmware-vix/bootstrap
@@ -293,6 +294,7 @@ fi
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
+%{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
@@ -328,8 +330,6 @@ fi
 %{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so
 %{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
 %{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
-%{_prefix}/lib/vmware/libcoreavc_sdk.so
-%{_prefix}/lib/vmware/libffi.so.5
 %{_prefix}/lib/vmware/libpcoip_client.so
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
@@ -405,6 +405,11 @@ fi
 %endif
 
 %changelog
+* Fri Oct 26 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-3
+- move libcoreavc_sdk.so to the main package (required by two others)
+- drop libffi.so.5 hack
+- own optional config files
+
 * Tue Oct 16 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-2
 - add missing libcoreavc_sdk.so library in pcoip subpackage
 - simplify Provides: filtering
