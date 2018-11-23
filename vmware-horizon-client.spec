@@ -1,9 +1,6 @@
-%undefine _missing_build_ids_terminate_build
-%if 0%{?fedora}
-%undefine _debugsource_packages
-%undefine _unique_build_ids
-%global _no_recompute_build_ids 1
-%endif
+# /usr/lib/vmware/view/bin/vmware-view-crtbora is built with STABS debuginfo,
+# which is not supported: https://bugzilla.redhat.com/show_bug.cgi?id=725378
+%global debug_package %{nil}
 %global cart   CART19FQ3
 %global ver    4.9.0
 %global docv   %(n=%{ver}; echo ${n%.0})
@@ -13,7 +10,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 3
+Release: 4%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -46,6 +43,7 @@ Provides: bundled(json-c) = 0.12.1
 Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libpng12) = 1.2.57
 Provides: bundled(libsrtp) = 2.1.0.0-pre
+Provides: bundled(libstdc++) = 6.4.0
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.6
 Provides: bundled(mechanical-fonts) = 1.00
@@ -59,7 +57,7 @@ Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
+%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so\|stdc\\+\\+\\.so\\.6\\(\(CXXABI_1\\.3\\.9\|GLIBCXX_3\\.4\\.2\[01]\)\\)\).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -80,7 +78,7 @@ Multimedia Redirection support plugin for VMware Horizon Client.
 
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
-Requires: freerdp1.2
+Requires: freerdp
 Requires: %{name} = %{version}-%{release}
 Provides: bundled(pcoip-soft-clients) = 3.51
 
@@ -165,6 +163,7 @@ install -dm0755 %{buildroot}%{_bindir}
 install -dm0755 %{buildroot}%{_unitdir}
 install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 install -dm0755 %{buildroot}%{_prefix}/lib/freerdp
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/gcc
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,usb,pkcs11,virtualPrinting,vdpService}
@@ -200,6 +199,7 @@ ln %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so %{buildro
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/gcc/libstdc++.so.6 %{buildroot}%{_prefix}/lib/vmware/gcc
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/lib{crypto,ssl}.so.1.0.2 %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so %{buildroot}%{_prefix}/lib/vmware
 
@@ -294,6 +294,7 @@ fi
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
+%{_prefix}/lib/vmware/gcc
 %{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
@@ -405,6 +406,12 @@ fi
 %endif
 
 %changelog
+* Fri Nov 23 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-4
+- support building on RHEL7
+- use dist tag as packages are now slightly different
+- disable debuginfo due to unsupported STABS in vmware-view-crtbora
+- include bundled libstdc++
+
 * Fri Oct 26 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-3
 - move libcoreavc_sdk.so to the main package (required by two others)
 - drop libffi.so.5 hack
