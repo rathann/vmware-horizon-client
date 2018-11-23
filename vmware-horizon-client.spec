@@ -1,9 +1,7 @@
 %undefine _missing_build_ids_terminate_build
-%if 0%{?fedora}
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%endif
 %global cart   CART19FQ3
 %global ver    4.9.0
 %global docv   %(n=%{ver}; echo ${n%.0})
@@ -13,7 +11,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 3
+Release: 4%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -405,6 +403,10 @@ fi
 %endif
 
 %changelog
+* Fri Nov 23 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-4
+- drop fedora conditional, master is Fedora only now
+- use dist tag as packages are now slightly different
+
 * Fri Oct 26 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-3
 - move libcoreavc_sdk.so to the main package (required by two others)
 - drop libffi.so.5 hack
