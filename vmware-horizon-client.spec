@@ -2,16 +2,16 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART19FQ3
-%global ver    4.9.0
+%global cart   CART19FQ4
+%global ver    4.10.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    9507999
+%global rel    11053294
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 4%{?dist}
+Release: 1%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -47,7 +47,7 @@ Provides: bundled(libsrtp) = 2.1.0.0-pre
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.6
 Provides: bundled(mechanical-fonts) = 1.00
-Provides: bundled(openssl) = 1.0.2m
+Provides: bundled(openssl) = 1.0.2p
 Provides: bundled(opus) = 1.0.1
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(speex) = 1.2rc3
@@ -403,6 +403,9 @@ fi
 %endif
 
 %changelog
+* Tue Dec 18 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.10.0.11053294-1
+- update to 4.10.0 build 11053294
+
 * Fri Nov 23 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.9.0.9507999-4
 - drop fedora conditional, master is Fedora only now
 - use dist tag as packages are now slightly different
