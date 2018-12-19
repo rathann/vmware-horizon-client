@@ -27,6 +27,7 @@ ExclusiveArch: x86_64
 BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
+BuildRequires: %{_bindir}/python
 BuildRequires: systemd
 Provides: bundled(atk) = 1.9.0
 Provides: bundled(atk) = 1.30.0
