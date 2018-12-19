@@ -26,6 +26,7 @@ ExclusiveArch: x86_64
 BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
+BuildRequires: %{_bindir}/python
 BuildRequires: systemd
 Provides: bundled(atk) = 1.9.0
 Provides: bundled(atk) = 1.30.0
@@ -57,7 +58,7 @@ Provides: bundled(atk) = 1.30.0
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so\|stdc\\+\\+\\.so\\.6\\(\(CXXABI_1\\.3\\.9\|GLIBCXX_3\\.4\\.2\[01]\)\\)\).*$
+%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so\|stdc\\+\\+\\.so\\.6\\(\(CXXABI_1\\.3\\.\[89]\|GLIBCXX_3\\.4\\.2\[012]\)\\)\).*$
 
 %description
 Remote access client for VMware Horizon.
