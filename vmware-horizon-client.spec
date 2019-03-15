@@ -278,6 +278,15 @@ fi
 %license %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
 %license %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
 %license %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
+%doc vmware-horizon-client/doc/open_source_licenses.txt
+%doc %lang(de) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-de.txt
+%doc vmware-horizon-client/doc/VMware-Horizon-Client-EULA-en.txt
+%doc %lang(es) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-es.txt
+%doc %lang(fr) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-fr.txt
+%doc %lang(ja) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ja.txt
+%doc %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
+%doc %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
+%doc %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
 %doc horizon-client-linux-%{docvnd}-release-notes.html
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
