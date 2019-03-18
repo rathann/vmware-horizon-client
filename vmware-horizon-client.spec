@@ -2,11 +2,11 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART19FQ4
-%global ver    4.10.0
+%global cart   CART20FQ1
+%global ver    5.0.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    11053294
+%global rel    12557422
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -20,6 +20,7 @@ Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/hori
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source12: vmware-ftsprhvd.service
+Source13: vmware-ftscanhvd.service
 Patch0: %{name}-desktop.patch
 Patch1: %{name}-wrapper.patch
 License: VMware
@@ -100,6 +101,18 @@ Requires: %{name} = %{version}-%{release}
 %description seamless-window
 Seamless Window Feature plugin for VMware Horizon Client.
 
+%package scannerclient
+Summary: Scanner redirection support plugin for VMware Horizon Client
+%{?systemd_requires}
+Requires: %{name} = %{version}-%{release}
+Requires: libudev.so.1()(64bit)
+Requires(post): %{_sbindir}/semodule
+Requires(postun): %{_sbindir}/semodule
+
+%description scannerclient
+The Scanner Redirection component allows you to use local scanner devices from a
+remote desktop.
+
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
@@ -152,6 +165,7 @@ chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libcairomm-1.0.so.1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libgiomm-2.4.so.1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libglibmm-2.4.so.1
 chrpath -d vmware-horizon-pcoip/pcoip/lib/vmware/libgtkmm-2.4.so.1
+chrpath -d vmware-horizon-scannerclient/bin/ftscanhvd
 execstack -c vmware-horizon-media-provider/lib/libV264.so
 execstack -c vmware-horizon-media-provider/lib/libVMWMediaProvider.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so
@@ -195,7 +209,6 @@ install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-remotemks{,-container} %{b
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
-ln %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
@@ -203,6 +216,11 @@ install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/lib{crypto,ssl}.so.1.0.2 %
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so %{buildroot}%{_prefix}/lib/vmware
 
 install -pm0755 vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
+
+install -pm0644 vmware-horizon-scannerclient/bin/ftplugins.conf %{buildroot}/etc/vmware/ftplugins.conf
+install -pm0755 vmware-horizon-scannerclient/bin/ftscanhvd %{buildroot}%{_prefix}/lib/vmware/view/bin
+install -pm0755 vmware-horizon-scannerclient/lib/vmware/rdpvcbridge/ftnlses3hv.so %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
+install -pm0644 %{S:13} %{buildroot}%{_unitdir}
 
 install -pm0755 vmware-horizon-seamless-window/vmware-view-crtbora %{buildroot}%{_prefix}/lib/vmware/view/bin
 install -pm0755 vmware-horizon-seamless-window/lib/vmware/libcrtbora.so %{buildroot}%{_prefix}/lib/vmware
@@ -230,6 +248,34 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+
+%post scannerclient
+TMPDIR=$(%{_bindir}/mktemp -d)
+cat >> $TMPDIR/%{name}-scannerclient-rpm.cil << __EOF__
+(typeattributeset cil_gen_require init_t)
+(typeattributeset cil_gen_require printer_device_t)
+(typeattributeset cil_gen_require tmp_t)
+(typeattributeset cil_gen_require usb_device_t)
+(typeattributeset cil_gen_require v4l_device_t)
+(allow init_t tmp_t (sock_file (create setattr unlink)))
+(allow init_t printer_device_t (chr_file (open read)))
+(allow init_t usb_device_t (chr_file (ioctl open read write)))
+(allow init_t v4l_device_t (chr_file (ioctl open read write)))
+__EOF__
+%{_sbindir}/semodule -i $TMPDIR/%{name}-scannerclient-rpm.cil
+rm $TMPDIR/%{name}-scannerclient-rpm.cil
+rmdir $TMPDIR
+%systemd_post vmware-ftscanhvd.service
+exit 0
+
+%preun scannerclient
+%systemd_preun vmware-ftscanhvd.service
+
+%postun scannerclient
+%systemd_postun_with_restart vmware-ftscanhvd.service
+if [ $1 -eq 0 ]; then
+  %{_sbindir}/semodule -r %{name}-scannerclient-rpm || :
+fi
 
 %post serialportclient
 %systemd_post vmware-ftsprhvd.service
@@ -308,6 +354,7 @@ fi
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %dir %{_prefix}/lib/vmware/rdpvcbridge
+%{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
@@ -335,7 +382,6 @@ fi
 %{_bindir}/vmware-remotemks-container
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
-%{_prefix}/lib/pcoip/vchan_plugins/libmksvchanclient.so
 %{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
 %{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
 %{_prefix}/lib/vmware/libpcoip_client.so
@@ -348,6 +394,12 @@ fi
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 
+%files scannerclient
+%doc vmware-horizon-scannerclient/bin/README
+%config(noreplace) /etc/vmware/ftplugins.conf
+%{_prefix}/lib/vmware/view/bin/ftscanhvd
+%{_unitdir}/vmware-ftscanhvd.service
+
 %files seamless-window
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libvmwarebase.so
@@ -356,7 +408,6 @@ fi
 %files serialportclient
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/ftsprhv.db
 %{_prefix}/lib/vmware/view/bin/ftsprhvd
-%{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
 %{_unitdir}/vmware-ftsprhvd.service
 
 %files smartcard
@@ -413,6 +464,10 @@ fi
 %endif
 
 %changelog
+* Fri Mar 15 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.0.0.12557422-1
+- update to 5.0.0 build 12557422
+- include Scanner Redirection feature
+
 * Tue Dec 18 2018 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 4.10.0.11053294-1
 - update to 4.10.0 build 11053294
 
