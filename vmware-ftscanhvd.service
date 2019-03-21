@@ -1,0 +1,9 @@
+[Unit]
+Description=VMware Scanner Device Redirection Service. Allows scanner devices from the HOST to be usable by the guest.
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/vmware/view/bin/ftscanhvd -D
+
+[Install]
+WantedBy=multi-user.target
