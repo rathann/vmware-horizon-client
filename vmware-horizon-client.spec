@@ -56,6 +56,7 @@ Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.3
 Provides: bundled(zlib) = 1.2.8
 Provides: bundled(atk) = 1.30.0
+Requires: %{_bindir}/pidof
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
@@ -97,6 +98,7 @@ Real-Time Audio-Video support plugin for VMware Horizon Client.
 %package seamless-window
 Summary: Seamless Window Feature plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
+Requires: %{_bindir}/pidof
 
 %description seamless-window
 Seamless Window Feature plugin for VMware Horizon Client.
