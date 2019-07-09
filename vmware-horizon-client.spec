@@ -2,18 +2,18 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART20FQ1
-%global ver    5.0.0
+%global cart   CART20FQ2
+%global ver    5.1.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    12557422
+%global rel    13956721
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 1%{?dist}
+Release: 1
 URL: https://www.vmware.com/products/horizon.html
-# https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_horizon_clients/4_0
+# https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/rn/horizon-client-linux-%{docvnd}-release-notes.html
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
@@ -35,35 +35,54 @@ Provides: bundled(atk) = 1.30.0
 Provides: bundled(boost) = 1.61
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.56.0
+Provides: bundled(curl) = 7.64.1
 Provides: bundled(glibmm) = 2.44.0
 Provides: bundled(gtkmm) = 2.20.1
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(hidapi) = 0.8.9
 Provides: bundled(icu) = 56.1
-Provides: bundled(icu) = 60.1
+Provides: bundled(icu) = 60.2
 Provides: bundled(json-c) = 0.12.1
 Provides: bundled(libjpeg-turbo) = 1.4.2
-Provides: bundled(libpng12) = 1.2.57
+Provides: bundled(libpng) = 1.6.35
 Provides: bundled(libsrtp) = 2.1.0.0-pre
 Provides: bundled(libwebrtc) = 90
-Provides: bundled(libxml2) = 2.9.6
+Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
-Provides: bundled(openssl) = 1.0.2p
+Provides: bundled(openssl) = 1.0.2r
 Provides: bundled(opus) = 1.0.1
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.3
-Provides: bundled(zlib) = 1.2.8
+Provides: bundled(zlib) = 1.2.11
 Provides: bundled(atk) = 1.30.0
 Requires: %{_bindir}/pidof
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(crtbora\\.so\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|vmware\(base\|-view-usbd\)\\.so).*$
+%global __requires_exclude ^lib\(\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
+
+Requires Horizon Agent 7.0 or later on the virtual desktop.
+
+%package html5mmr
+Summary: HTML5 Multimedia Redirection support plugin for VMware Horizon Client
+Provides: bundled(chromium) = 70.0.3538.35
+Requires: %{name} = %{version}-%{release}
+
+%description html5mmr
+HTML5 Multimedia Redirection support plugin for VMware Horizon Client.
+
+Requires Horizon Agent 7.9 or later on the virtual desktop.
+
+%package integrated-printing
+Summary: Integrated Printing support plugin for VMware Horizon Client
+Requires: %{name} = %{version}-%{release}
+
+%description integrated-printing
+Integrated Printing support plugin for VMware Horizon Client.
 
 %package media-provider
 Summary: Virtualization Pack for Skype for Business
@@ -79,14 +98,20 @@ Requires: %{name} = %{version}-%{release}
 %description mmr
 Multimedia Redirection support plugin for VMware Horizon Client.
 
+Requires Horizon Agent 7.0 or later on the virtual desktop.
+
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
 Requires: freerdp1.2
+Requires: libavcodec.so.58()(64bit)
+Requires: libavutil.so.56()(64bit)
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.51
+Provides: bundled(pcoip-soft-clients) = 3.61
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
+
+Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
@@ -105,6 +130,7 @@ Seamless Window Feature plugin for VMware Horizon Client.
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
+Provides: bundled(scanner_linux) = 2.1.0.4
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
@@ -115,13 +141,18 @@ Requires(postun): %{_sbindir}/semodule
 The Scanner Redirection component allows you to use local scanner devices from a
 remote desktop.
 
+Requires Horizon Agent 7.8 or later on the virtual desktop.
+
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
+Provides: bundled(linux_serial) = 2.1.3.1
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
 
 %description serialportclient
 Serial port redirection support plugin for VMware Horizon Client.
+
+Requires Horizon Agent 7.6 or later on the virtual desktop.
 
 %package smartcard
 Summary: SmartCard authentication support plugin for VMware Horizon Client
@@ -151,7 +182,7 @@ USB Redirection support plugin for VMware Horizon Client.
 %package virtual-printing
 Summary: Virtual Printing support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.155
+Provides: bundled(thinprint) = 10.0.165
 
 %description virtual-printing
 Virtual Printing support plugin for VMware Horizon Client.
@@ -171,6 +202,13 @@ chrpath -d vmware-horizon-scannerclient/bin/ftscanhvd
 execstack -c vmware-horizon-media-provider/lib/libV264.so
 execstack -c vmware-horizon-media-provider/lib/libVMWMediaProvider.so
 execstack -c vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so
+pushd vmware-horizon-html5mmr/lib/vmware/view/html5mmr
+chmod +x \
+  HTML5VideoPlayer \
+  chrome-sandbox \
+  {,swiftshader/}lib*.so \
+
+popd
 
 %build
 
@@ -182,7 +220,7 @@ install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 install -dm0755 %{buildroot}%{_prefix}/lib/freerdp
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,usb,pkcs11,virtualPrinting,vdpService}
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,usb,pkcs11,{integrated,virtual}Printing,vdpService}
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/xkeymap
 install -dm0755 %{buildroot}%{_datadir}/applications
 install -dm0755 %{buildroot}%{_datadir}/icons
@@ -200,6 +238,14 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 install -pm0755 vmware-horizon-client/lib/vmware/view/bin/vmware-view %{buildroot}%{_prefix}/lib/vmware/view/bin
 ln -s %{_libdir}/libudev.so.1 %{buildroot}%{_prefix}/lib/vmware/libudev.so.0
 
+install -pm0755 vmware-horizon-html5mmr/lib/vmware/libjson_linux-gcc-4.1.1_libmt.so %{buildroot}%{_prefix}/lib/vmware
+cp -pr vmware-horizon-html5mmr/lib/vmware/view/html5mmr %{buildroot}%{_prefix}/lib/vmware/view
+install -pm0755 vmware-horizon-html5mmr/lib/vmware/view/vdpService/libhtml5Client.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
+
+install -pm0755 vmware-horizon-integrated-printing/bin/prlinuxcupsppd %{buildroot}%{_bindir}
+install -pm0755 vmware-horizon-integrated-printing/bin/libvmwprclient.so %{buildroot}%{_prefix}/lib/vmware/view/integratedPrinting
+install -pm0755 vmware-horizon-integrated-printing/lib/vmware/view/vdpService/libvmwprvdpplugin.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
+
 install -pm0755 vmware-horizon-media-provider/lib/libV264.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -pm0755 vmware-horizon-media-provider/lib/libVMWMediaProvider.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 
@@ -207,11 +253,12 @@ echo "%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so" > %{buildroot}%{_sysc
 install -pm0755 vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
 install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector %{buildroot}%{_bindir}
-install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-remotemks{,-container} %{buildroot}%{_bindir}
+install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-remotemks-container %{buildroot}%{_bindir}
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_bindir}
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/lib{crypto,ssl}.so.1.0.2 %{buildroot}%{_prefix}/lib/vmware
@@ -233,6 +280,7 @@ install -pm0755 vmware-horizon-serialportclient/lib/vmware/rdpvcbridge/ftnlses3h
 install -pm0644 %{S:12} %{buildroot}%{_unitdir}
 
 install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchanclient.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
+ln -s /usr/lib64/pkcs11/opensc-pkcs11.so %{buildroot}%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
 
 install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
@@ -360,13 +408,22 @@ fi
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
-%dir %{_prefix}/lib/vmware/view/pkcs11
 %dir %{_prefix}/lib/vmware/view/vdpService
 %{_datadir}/applications/vmware-view.desktop
 %{_datadir}/icons/vmware-view.png
 %{_datadir}/pixmaps/vmware-view.png
 %{_datadir}/X11/xorg.conf.d/20-vmware-hid.conf
 %{_var}/log/vmware
+
+%files html5mmr
+%{_prefix}/lib/vmware/libjson_linux-gcc-4.1.1_libmt.so
+%{_prefix}/lib/vmware/view/html5mmr
+%{_prefix}/lib/vmware/view/vdpService/libhtml5Client.so
+
+%files integrated-printing
+%{_bindir}/prlinuxcupsppd
+%{_prefix}/lib/vmware/view/integratedPrinting/libvmwprclient.so
+%{_prefix}/lib/vmware/view/vdpService/libvmwprvdpplugin.so
 
 %files media-provider
 %dir %{_prefix}/lib/vmware/mediaprovider
@@ -414,6 +471,8 @@ fi
 
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
+%dir %{_prefix}/lib/vmware/view/pkcs11
+%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
 
 %files tsdr
 %{_prefix}/lib/vmware/view/vdpService/libtsdrClient.so
@@ -466,6 +525,14 @@ fi
 %endif
 
 %changelog
+* Wed Jul 03 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-1
+- update to 5.1.0 build 13956721
+- include HTML5 Multimedia Redirection and Integrated Printing features
+- update internal Requires filter
+- update bundled components list
+- mention minimum Horizon Agent version requirements where applicable
+- improve smartcard auth support (untested)
+
 * Fri Mar 15 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.0.0.12557422-1
 - update to 5.0.0 build 12557422
 - include Scanner Redirection feature
