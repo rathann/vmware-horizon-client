@@ -11,7 +11,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 1
+Release: 2
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -36,8 +36,6 @@ Provides: bundled(boost) = 1.61
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
 Provides: bundled(curl) = 7.64.1
-Provides: bundled(glibmm) = 2.44.0
-Provides: bundled(gtkmm) = 2.20.1
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(hidapi) = 0.8.9
 Provides: bundled(icu) = 56.1
@@ -60,7 +58,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|g\(dk\|io\|lib\|tk\)mm-2\\.4\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -124,6 +122,10 @@ Real-Time Audio-Video support plugin for VMware Horizon Client.
 Summary: Seamless Window Feature plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
 Requires: %{_bindir}/pidof
+Provides: bundled(atkmm) = 2.24.0
+Provides: bundled(glibmm24) = 2.44.0
+Provides: bundled(gtkmm24) = 2.20.1
+Provides: bundled(pangomm) = 2.40.0
 
 %description seamless-window
 Seamless Window Feature plugin for VMware Horizon Client.
@@ -260,6 +262,12 @@ install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{bui
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_bindir}
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libatkmm-1.6.so.1 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgdkmm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgiomm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libglibmm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgtkmm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libpangomm-1.4.so.1 %{buildroot}%{_prefix}/lib/vmware
 
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/lib{crypto,ssl}.so.1.0.2 %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so %{buildroot}%{_prefix}/lib/vmware
@@ -460,7 +468,13 @@ fi
 %{_unitdir}/vmware-ftscanhvd.service
 
 %files seamless-window
+%{_prefix}/lib/vmware/libatkmm-1.6.so.1
 %{_prefix}/lib/vmware/libcrtbora.so
+%{_prefix}/lib/vmware/libgdkmm-2.4.so.1
+%{_prefix}/lib/vmware/libgiomm-2.4.so.1
+%{_prefix}/lib/vmware/libglibmm-2.4.so.1
+%{_prefix}/lib/vmware/libgtkmm-2.4.so.1
+%{_prefix}/lib/vmware/libpangomm-1.4.so.1
 %{_prefix}/lib/vmware/libvmwarebase.so
 %{_prefix}/lib/vmware/view/bin/vmware-view-crtbora
 
@@ -525,6 +539,9 @@ fi
 %endif
 
 %changelog
+* Mon Jul 22 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-2
+- include some bundled libraries to fix Seamless Window Feature
+
 * Wed Jul 03 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-1
 - update to 5.1.0 build 13956721
 - include HTML5 Multimedia Redirection and Integrated Printing features
