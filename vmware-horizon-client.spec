@@ -222,7 +222,7 @@ install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 install -dm0755 %{buildroot}%{_prefix}/lib/freerdp
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,usb,pkcs11,{integrated,virtual}Printing,vdpService}
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,client/legacy,usb,pkcs11,{integrated,virtual}Printing,vdpService}
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/xkeymap
 install -dm0755 %{buildroot}%{_datadir}/applications
 install -dm0755 %{buildroot}%{_datadir}/icons
@@ -260,7 +260,8 @@ install -pm0755 vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so %{buildroot}%{_
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_bindir}
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_prefix}/lib/vmware/view/client/
+install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/legacy/vmware-remotemks %{buildroot}%{_prefix}/lib/vmware/view/client/legacy/
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libatkmm-1.6.so.1 %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgdkmm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
@@ -445,7 +446,6 @@ fi
 
 %files pcoip
 %{_bindir}/vmware-flash-projector
-%{_bindir}/vmware-remotemks
 %{_bindir}/vmware-remotemks-container
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
@@ -453,6 +453,8 @@ fi
 %{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
 %{_prefix}/lib/vmware/libpcoip_client.so
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
+%{_prefix}/lib/vmware/view/client/vmware-remotemks
+%{_prefix}/lib/vmware/view/client/legacy/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
 %{_prefix}/lib/vmware/view/vdpService/libviewMPClient.so
@@ -541,6 +543,7 @@ fi
 %changelog
 * Mon Jul 22 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-2
 - include some bundled libraries to fix Seamless Window Feature
+- ship both legacy and new remotemks binaries
 
 * Wed Jul 03 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-1
 - update to 5.1.0 build 13956721
