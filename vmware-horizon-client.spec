@@ -11,7 +11,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 2
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
@@ -215,6 +215,7 @@ popd
 %build
 
 %install
+install -dm0755 %{buildroot}%{_sysconfdir}/teradici
 install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
 install -dm0755 %{buildroot}%{_bindir}
 install -dm0755 %{buildroot}%{_unitdir}
@@ -396,6 +397,7 @@ fi
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/vmware/config
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/vmware/view-keycombos-config
 %dir %{_sysconfdir}/vmware/udpProxy
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/vmware/udpProxy/config
@@ -407,6 +409,7 @@ fi
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
+%attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/config
 %{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libssl.so.1.0.2
@@ -414,6 +417,7 @@ fi
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
+%attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/settings
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
@@ -445,6 +449,9 @@ fi
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
 
 %files pcoip
+%dir %{_sysconfdir}/teradici
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin.conf
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin_defaults.conf
 %{_bindir}/vmware-flash-projector
 %{_bindir}/vmware-remotemks-container
 %dir %{_prefix}/lib/pcoip
@@ -541,6 +548,9 @@ fi
 %endif
 
 %changelog
+* Thu Jul 25 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-3
+- own some more optional config files
+
 * Mon Jul 22 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.1.0.13956721-2
 - include some bundled libraries to fix Seamless Window Feature
 - ship both legacy and new remotemks binaries
