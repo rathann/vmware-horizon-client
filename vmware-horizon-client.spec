@@ -284,7 +284,7 @@ install -pm0755 vmware-horizon-usb/bin/vmware-view-usbdloader %{buildroot}%{_bin
 install -pm0755 vmware-horizon-usb/lib/vmware/view/usb/{vmware-usbarbitrator,libvmware-view-usbd.so} %{buildroot}%{_prefix}/lib/vmware/view/usb
 install -pm0755 vmware-horizon-usb/lib/vmware/view/vdpService/libusbRedirectionClient.so  %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 
-ln -s %{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
+ln -s ../lib/vmware/view/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 
