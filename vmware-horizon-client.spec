@@ -212,6 +212,7 @@ install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,client/legacy,usb,pkcs11,{integrated,virtual}Printing,vdpService}
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/xkeymap
 install -dm0755 %{buildroot}%{_datadir}/applications
+install -dm0755 %{buildroot}%{_datadir}/doc/%{name}
 install -dm0755 %{buildroot}%{_datadir}/icons
 install -dm0755 %{buildroot}%{_datadir}/pixmaps
 install -dm0755 %{buildroot}%{_var}/log/vmware
@@ -226,6 +227,7 @@ install -pm0644 vmware-horizon-client/extras/artwork/linux_view_128x.png %{build
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 install -pm0755 vmware-horizon-client/lib/vmware/view/bin/vmware-view %{buildroot}%{_prefix}/lib/vmware/view/bin
 ln -s %{_libdir}/libudev.so.1 %{buildroot}%{_prefix}/lib/vmware/libudev.so.0
+install -pm0644 vmware-horizon-client/doc/{open_source_licenses.txt,VMware-Horizon-Client-EULA*.txt} %{buildroot}%{_datadir}/doc/%{name}
 
 install -pm0755 vmware-horizon-html5mmr/lib/vmware/libjson_linux-gcc-4.1.1_libmt.so %{buildroot}%{_prefix}/lib/vmware
 cp -pr vmware-horizon-html5mmr/lib/vmware/view/html5mmr %{buildroot}%{_prefix}/lib/vmware/view
@@ -360,24 +362,15 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files -f %{_builddir}/%{name}-%{version}/vmware-view.lang
-%license vmware-horizon-client/doc/open_source_licenses.txt
-%license %lang(de) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-de.txt
-%license vmware-horizon-client/doc/VMware-Horizon-Client-EULA-en.txt
-%license %lang(es) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-es.txt
-%license %lang(fr) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-fr.txt
-%license %lang(ja) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ja.txt
-%license %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
-%license %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
-%license %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
-%doc vmware-horizon-client/doc/open_source_licenses.txt
-%doc %lang(de) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-de.txt
-%doc vmware-horizon-client/doc/VMware-Horizon-Client-EULA-en.txt
-%doc %lang(es) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-es.txt
-%doc %lang(fr) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-fr.txt
-%doc %lang(ja) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ja.txt
-%doc %lang(ko) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-ko.txt
-%doc %lang(zh_CN) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_CN.txt
-%doc %lang(zh_TW) vmware-horizon-client/doc/VMware-Horizon-Client-EULA-zh_TW.txt
+%license %{_docdir}/%{name}/open_source_licenses.txt
+%license %lang(de) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-de.txt
+%license %{_docdir}/%{name}/VMware-Horizon-Client-EULA-en.txt
+%license %lang(es) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-es.txt
+%license %lang(fr) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-fr.txt
+%license %lang(ja) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ja.txt
+%license %lang(ko) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ko.txt
+%license %lang(zh_CN) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_CN.txt
+%license %lang(zh_TW) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_TW.txt
 %doc horizon-client-linux-%{docvnd}-release-notes.html
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
