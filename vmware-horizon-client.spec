@@ -107,7 +107,8 @@ Requires: freerdp1.2
 Requires: libavcodec.so.58()(64bit)
 Requires: libavutil.so.56()(64bit)
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.61
+Provides: bundled(pcoip-soft-clients) = 3.63
+Provides: bundled(openssl) = 1.0.2s
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
