@@ -2,11 +2,11 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART20FQ3
-%global ver    5.2.0
+%global cart   CART20FQ4
+%global ver    5.3.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    14604769
+%global rel    15208949
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -30,30 +30,24 @@ BuildRequires: %{_bindir}/execstack
 BuildRequires: %{_bindir}/python
 BuildRequires: systemd
 Provides: bundled(atk) = 2.28.1
-Provides: bundled(atkmm) = 2.24.0
+Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.65.3
+Provides: bundled(curl) = 7.66.0
 Provides: bundled(glibmm24) = 2.44.0
 Provides: bundled(gtkmm30) = 3.10.1
 Provides: bundled(hal) = 0.5.12
-Provides: bundled(hidapi) = 0.8.9
-Provides: bundled(icu) = 56.1
 Provides: bundled(icu) = 60.2
-Provides: bundled(json-c) = 0.12.1
 Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libpng12) = 1.2.59
-Provides: bundled(libsrtp) = 2.1.0.0-pre
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
-Provides: bundled(openssl) = 1.0.2s
-Provides: bundled(opus) = 1.0.1
+Provides: bundled(openssl) = 1.0.2t
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(pangomm) = 2.34.0
 Provides: bundled(speex) = 1.2rc3
-Provides: bundled(zlib) = 1.2.3
 Provides: bundled(zlib) = 1.2.11
 Provides: %{name}-seamless-window = %{version}-%{release}
 Obsoletes: %{name}-seamless-window < 5.2.0.14604769
@@ -70,7 +64,8 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package html5mmr
 Summary: HTML5 Multimedia Redirection support plugin for VMware Horizon Client
-Provides: bundled(chromium) = 70.0.3538.35
+Provides: bundled(chromium-embedded-framework) = 70.0.3538.35
+Provides: bundled(webrtc) = 90
 Requires: %{name} = %{version}-%{release}
 
 %description html5mmr
@@ -88,6 +83,10 @@ Integrated Printing support plugin for VMware Horizon Client.
 %package media-provider
 Summary: Virtualization Pack for Skype for Business
 Requires: %{name} = %{version}-%{release}
+Provides: bundled(hidapi) = 0.8.9
+Provides: bundled(json-c) = 0.12.1
+Provides: bundled(libsrtp) = 2.1.0.0-pre
+Provides: bundled(webrtc) = 90
 
 %description media-provider
 Virtualization Pack for Skype for Business.
@@ -107,8 +106,8 @@ Requires: freerdp1.2
 Requires: libavcodec.so.58()(64bit)
 Requires: libavutil.so.56()(64bit)
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.63
-Provides: bundled(openssl) = 1.0.2s
+Provides: bundled(pcoip-soft-clients) = 3.65
+Provides: bundled(openssl) = 1.0.2t
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
@@ -124,7 +123,7 @@ Real-Time Audio-Video support plugin for VMware Horizon Client.
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
-Provides: bundled(scanner_linux) = 2.1.0.4
+Provides: bundled(scanner_linux) = 2.3.1.3
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
@@ -139,7 +138,7 @@ Requires Horizon Agent 7.8 or later on the virtual desktop.
 
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
-Provides: bundled(linux_serial) = 2.1.3.1
+Provides: bundled(serial_linux) = 2.2.1
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
 
@@ -176,7 +175,7 @@ USB Redirection support plugin for VMware Horizon Client.
 %package virtual-printing
 Summary: Virtual Printing support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.165
+Provides: bundled(thinprint) = 10.0.165-HF001
 
 %description virtual-printing
 Virtual Printing support plugin for VMware Horizon Client.
@@ -210,7 +209,7 @@ install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 install -dm0755 %{buildroot}%{_prefix}/lib/freerdp
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,client/legacy,usb,pkcs11,{integrated,virtual}Printing,vdpService}
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,client,usb,pkcs11,{integrated,virtual}Printing,vdpService}
 install -dm0755 %{buildroot}%{_prefix}/lib/vmware/xkeymap
 install -dm0755 %{buildroot}%{_datadir}/applications
 install -dm0755 %{buildroot}%{_datadir}/doc/%{name}
@@ -250,7 +249,6 @@ install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_prefix}/lib/vmware/view/client/
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/legacy/vmware-remotemks %{buildroot}%{_prefix}/lib/vmware/view/client/legacy/
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libatkmm-1.6.so.1 %{buildroot}%{_prefix}/lib/vmware
 install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgdkmm-3.0.so.1 %{buildroot}%{_prefix}/lib/vmware
@@ -448,7 +446,6 @@ fi
 %{_prefix}/lib/vmware/libpcoip_client.so
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
-%{_prefix}/lib/vmware/view/client/legacy/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
 %{_prefix}/lib/vmware/view/vdpService/libviewMPClient.so
@@ -523,6 +520,10 @@ fi
 %endif
 
 %changelog
+* Wed Dec 18 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.3.0.15208949-1
+- update to 5.3.0 build 15208949
+- update bundled components list
+
 * Sun Sep 29 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.2.0.14604769-1
 - update to 5.2.0 build 14604769
 - updated bundled components list
