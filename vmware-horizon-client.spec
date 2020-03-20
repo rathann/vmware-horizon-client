@@ -2,11 +2,11 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART20FQ4
-%global ver    5.3.0
+%global cart   CART21FQ1
+%global ver    5.4.0
 %global docv   %(n=%{ver}; echo ${n%.0})
 %global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    15208949
+%global rel    15805449
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -28,13 +28,13 @@ BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: %{_bindir}/python
-BuildRequires: systemd
+BuildRequires: systemd-rpm-macros
 Provides: bundled(atk) = 2.28.1
 Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.66.0
+Provides: bundled(curl) = 7.68.0
 Provides: bundled(glibmm24) = 2.44.0
 Provides: bundled(gtkmm30) = 3.10.1
 Provides: bundled(hal) = 0.5.12
@@ -64,7 +64,7 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package html5mmr
 Summary: HTML5 Multimedia Redirection support plugin for VMware Horizon Client
-Provides: bundled(chromium-embedded-framework) = 70.0.3538.35
+Provides: bundled(chromium-embedded-framework) = 75.0.3770.100
 Provides: bundled(webrtc) = 90
 Requires: %{name} = %{version}-%{release}
 
@@ -106,7 +106,7 @@ Requires: freerdp1.2
 Requires: libavcodec.so.58()(64bit)
 Requires: libavutil.so.56()(64bit)
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.65
+Provides: bundled(pcoip-soft-clients) = 3.67
 Provides: bundled(openssl) = 1.0.2t
 
 %description pcoip
@@ -123,7 +123,7 @@ Real-Time Audio-Video support plugin for VMware Horizon Client.
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
-Provides: bundled(scanner_linux) = 2.3.1.3
+Provides: bundled(scanner_linux) = 2.4.0.12
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
@@ -138,7 +138,7 @@ Requires Horizon Agent 7.8 or later on the virtual desktop.
 
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
-Provides: bundled(serial_linux) = 2.2.1
+Provides: bundled(serial_linux) = 2.4.1
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1()(64bit)
 
@@ -175,7 +175,7 @@ USB Redirection support plugin for VMware Horizon Client.
 %package virtual-printing
 Summary: Virtual Printing support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.165-HF001
+Provides: bundled(thinprint) = 10.0.165-HF004
 
 %description virtual-printing
 Virtual Printing support plugin for VMware Horizon Client.
@@ -187,9 +187,8 @@ bash %{S:0} -x %{_builddir}/%{name}-%{version}
 cp -p %{S:1} %{S:2} ./
 %patch0 -p1
 chrpath -d vmware-horizon-scannerclient/bin/ftscanhvd
-execstack -c vmware-horizon-media-provider/lib/libV264.so
-execstack -c vmware-horizon-media-provider/lib/libVMWMediaProvider.so
-execstack -c vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so
+find . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
+  grep ^X | cut -d' ' -f2 | xargs -l execstack -c
 pushd vmware-horizon-html5mmr/lib/vmware/view/html5mmr
 chmod +x \
   HTML5VideoPlayer \
@@ -520,6 +519,12 @@ fi
 %endif
 
 %changelog
+* Fri Mar 20 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.0.15805449-1
+- update to 5.4.0 build 15805449
+- generate the list of binaries to run execstack on on-the-fly
+- update bundled dependency versions
+- use correct build time dependency for systemd macros
+
 * Wed Dec 18 2019 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.3.0.15208949-1
 - update to 5.3.0 build 15208949
 - update bundled components list
