@@ -94,6 +94,8 @@ Virtualization Pack for Skype for Business.
 %package mmr
 Summary: Multimedia Redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
+Requires: gstreamer-ffmpeg%{_isa}
+Recommends: gstreamer-vaapi%{_isa}
 
 %description mmr
 Multimedia Redirection support plugin for VMware Horizon Client.
@@ -117,9 +119,14 @@ Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
+Requires: libspeex.so.1()(64bit)
+Requires: libtheoradec.so.1()(64bit)
+Requires: libtheoraenc.so.1()(64bit)
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
+
+Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
