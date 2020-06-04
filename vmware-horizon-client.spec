@@ -3,10 +3,10 @@
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
 %global cart   CART21FQ1
-%global ver    5.4.0
-%global docv   %(n=%{ver}; echo ${n%.0})
-%global docvnd %(n=%{docv}; echo ${n/.})
-%global rel    15805449
+%global ver    5.4.1
+%global docv   %(n=%{ver}; echo ${n%.[0-9]})
+%global docvnd %(n=%{ver}; echo ${n//.})
+%global rel    15988340
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
@@ -14,8 +14,8 @@ Version: %{ver}.%{rel}
 Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
-Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-%{ver}-%{rel}.x64.bundle
-Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/rn/horizon-client-linux-%{docvnd}-release-notes.html
+Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/vmware-view-client-linux-%{ver}-%{rel}.tar.gz
+Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{ver}/rn/horizon-client-linux-%{docvnd}-release-notes.html
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
@@ -188,15 +188,51 @@ Provides: bundled(thinprint) = 10.0.165-HF004
 Virtual Printing support plugin for VMware Horizon Client.
 
 %prep
-rm -rf %{_builddir}/%{name}-%{version}
-bash %{S:0} -x %{_builddir}/%{name}-%{version}
-%setup -qDT
+%setup -q -n vmware-view-client-linux-%{ver}-%{rel}
 cp -p %{S:1} %{S:2} ./
-%patch0 -p1
-chrpath -d vmware-horizon-scannerclient/bin/ftscanhvd
-find . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
+
+%build
+
+%install
+install -dm0755 %{buildroot}%{_prefix}
+install -dm0755 %{buildroot}%{_sysconfdir}/teradici
+install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
+install -dm0755 %{buildroot}%{_unitdir}
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
+install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/pkcs11
+install -dm0755 %{buildroot}%{_datadir}/doc
+install -dm0755 %{buildroot}%{_var}/log/vmware
+
+for f in\
+  x64/VMware-Horizon-Client-%{ver}-%{rel}.x86_64.tar.gz\
+  x64/VMware-Horizon-PCoIP-%{ver}-%{rel}.x64.tar.gz\
+  x64/VMware-Horizon-USB-%{ver}-%{rel}.x64.tar.gz\
+  x64/VMware-Horizon-html5mmr-%{ver}-%{rel}.x64.tar.gz\
+  x64/VMware-Horizon-integratedPrinting-%{ver}-%{rel}.x64.tar.gz\
+  x64/VMware-Horizon-scannerClient-%{ver}-%{rel}.x64.tar.gz\
+  x64/VMware-Horizon-serialportClient-%{ver}-%{rel}.x64.tar.gz\
+; do
+  tar xzf ${f} -C %{buildroot}%{_prefix} --strip-components=1
+done
+
+tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-11.0.0.613-15574653.tar.gz\
+  -C %{buildroot}%{_prefix}/lib/vmware/mediaprovider\
+  --strip-components=2\
+  VMware-Horizon-Media-Provider-11.0.0.613-15574653/lin64/\*.so
+
+chrpath -d %{buildroot}%{_prefix}/lib/vmware/view/bin/ftscanhvd
+find  %{buildroot} -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
   grep ^X | cut -d' ' -f2 | xargs -l execstack -c
-pushd vmware-horizon-html5mmr/lib/vmware/view/html5mmr
+
+patch -p1 %{buildroot}%{_datadir}/applications/vmware-view.desktop %{PATCH0}
+
+mv -v %{buildroot}%{_prefix}/{doc,share/doc/%{name}}
+mv -v %{buildroot}%{_prefix}/lib{,/vmware}/libcoreavc_sdk.so
+mv -v %{buildroot}%{_prefix}/lib{,/vmware}/libpcoip_client.so
+mv -v %{buildroot}{%{_prefix}/lib/vmware/view/integratedPrinting/prlinuxcupsppd,%{_bindir}}
+mv -v %{buildroot}%{_prefix}/vmware/ftplugins.conf %{buildroot}/etc/vmware
+
+pushd %{buildroot}%{_prefix}/lib/vmware/view/html5mmr
 chmod +x \
   HTML5VideoPlayer \
   chrome-sandbox \
@@ -204,92 +240,37 @@ chmod +x \
 
 popd
 
-%build
-
-%install
-install -dm0755 %{buildroot}%{_sysconfdir}/teradici
-install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
-install -dm0755 %{buildroot}%{_bindir}
-install -dm0755 %{buildroot}%{_unitdir}
-install -dm0755 %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
-install -dm0755 %{buildroot}%{_prefix}/lib/freerdp
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/{bin,client,usb,pkcs11,{integrated,virtual}Printing,vdpService}
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/xkeymap
-install -dm0755 %{buildroot}%{_datadir}/applications
-install -dm0755 %{buildroot}%{_datadir}/doc/%{name}
-install -dm0755 %{buildroot}%{_datadir}/icons
-install -dm0755 %{buildroot}%{_datadir}/pixmaps
-install -dm0755 %{buildroot}%{_var}/log/vmware
+rm -rf \
+  %{buildroot}%{_prefix}/debug\
+  %{buildroot}%{_prefix}/init.d\
+  %{buildroot}%{_prefix}/lib/vmware/gcc\
+  %{buildroot}%{_prefix}/lib/vmware/libcairomm-1.0.so.1\
+  %{buildroot}%{_prefix}/lib/vmware/libffi.so.6\
+  %{buildroot}%{_prefix}/lib/vmware/libjpeg.so.62\
+  %{buildroot}%{_prefix}/lib/vmware/libpcre.so.1\
+  %{buildroot}%{_prefix}/lib/vmware/libpng12.so.0\
+  %{buildroot}%{_prefix}/lib/vmware/libsigc-2.0.so.0\
+  %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge/tprdp.so\
+  %{buildroot}%{_prefix}/lib/vmware/view/crtbora\
+  %{buildroot}%{_prefix}/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README}\
+  %{buildroot}%{_prefix}/lib/vmware/view/{software,vaapi{,2},vdpau}\
+  %{buildroot}%{_prefix}/patches\
+  %{buildroot}%{_prefix}/README*\
+  %{buildroot}%{_prefix}/vmware\
 
 echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware/bootstrap
 echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware-vix/bootstrap
 
-install -pm0755 vmware-horizon-client/bin/vmware-view{,-lib-scan,-log-collector} %{buildroot}%{_bindir}
-cp -pr vmware-horizon-client/share/* %{buildroot}%{_datadir}
-install -pm0644 vmware-horizon-client/extras/artwork/linux_view_128x.png %{buildroot}%{_datadir}/icons/vmware-view.png
-install -pm0644 vmware-horizon-client/extras/artwork/linux_view_128x.png %{buildroot}%{_datadir}/pixmaps/vmware-view.png
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
-install -pm0755 vmware-horizon-client/lib/vmware/view/bin/vmware-view %{buildroot}%{_prefix}/lib/vmware/view/bin
 ln -s %{_libdir}/libudev.so.1 %{buildroot}%{_prefix}/lib/vmware/libudev.so.0
-install -pm0644 vmware-horizon-client/doc/{open_source_licenses.txt,VMware-Horizon-Client-EULA*.txt} %{buildroot}%{_datadir}/doc/%{name}
-
-install -pm0755 vmware-horizon-html5mmr/lib/vmware/libjson_linux-gcc-4.1.1_libmt.so %{buildroot}%{_prefix}/lib/vmware
-cp -pr vmware-horizon-html5mmr/lib/vmware/view/html5mmr %{buildroot}%{_prefix}/lib/vmware/view
-install -pm0755 vmware-horizon-html5mmr/lib/vmware/view/vdpService/libhtml5Client.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-
-install -pm0755 vmware-horizon-integrated-printing/bin/prlinuxcupsppd %{buildroot}%{_bindir}
-install -pm0755 vmware-horizon-integrated-printing/bin/vmware-print-redir-client %{buildroot}%{_prefix}/lib/vmware/view/integratedPrinting
-install -pm0755 vmware-horizon-integrated-printing/lib/vmware/view/vdpService/libvmwprvdpplugin.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-
-install -pm0755 vmware-horizon-media-provider/lib/libV264.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
-install -pm0755 vmware-horizon-media-provider/lib/libVMWMediaProvider.so %{buildroot}%{_prefix}/lib/vmware/mediaprovider
 
 echo "%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so" > %{buildroot}%{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
-install -pm0755 vmware-horizon-mmr/lib/vmware/view/vdpService/libtsmmrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-
-install -pm0755 vmware-horizon-pcoip/pcoip/bin/vmware-flash-projector %{buildroot}%{_bindir}
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/libcoreavc_sdk.so %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/libpcoip_client.so %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/pcoip/vchan_plugins/lib*.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
-cp -pr vmware-horizon-pcoip/pcoip/lib/vmware/{rdpvcbridge,xkeymap} %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/client/vmware-remotemks %{buildroot}%{_prefix}/lib/vmware/view/client/
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/view/vdpService/lib*.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libatkmm-1.6.so.1 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgdkmm-3.0.so.1 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgiomm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libglibmm-2.4.so.1 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libgtkmm-3.0.so.1 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libpangomm-1.4.so.1 %{buildroot}%{_prefix}/lib/vmware
-
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/lib{crypto,ssl}.so.1.0.2 %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-pcoip/pcoip/lib/vmware/libudpProxyLib.so %{buildroot}%{_prefix}/lib/vmware
-
-install -pm0755 vmware-horizon-rtav/lib/pcoip/vchan_plugins/libviewMMDevRedir.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
-
-install -pm0644 vmware-horizon-scannerclient/bin/ftplugins.conf %{buildroot}/etc/vmware/ftplugins.conf
-install -pm0755 vmware-horizon-scannerclient/bin/ftscanhvd %{buildroot}%{_prefix}/lib/vmware/view/bin
-install -pm0755 vmware-horizon-scannerclient/lib/vmware/rdpvcbridge/ftnlses3hv.so %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
 install -pm0644 %{S:13} %{buildroot}%{_unitdir}
 
-install -pm0755 vmware-horizon-seamless-window/lib/vmware/libcrtbora.so %{buildroot}%{_prefix}/lib/vmware
-install -pm0755 vmware-horizon-seamless-window/lib/vmware/libvmwarebase.so %{buildroot}%{_prefix}/lib/vmware
-
-install -pm0755 vmware-horizon-serialportclient/bin/ftsprhvd %{buildroot}%{_prefix}/lib/vmware/view/bin
-install -pm0755 vmware-horizon-serialportclient/lib/vmware/rdpvcbridge/ftnlses3hv.so %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge
 install -pm0644 %{S:12} %{buildroot}%{_unitdir}
 
-install -pm0755 vmware-horizon-smartcard/lib/pcoip/vchan_plugins/libscredirvchanclient.so %{buildroot}%{_prefix}/lib/pcoip/vchan_plugins
 ln -s /usr/lib64/pkcs11/opensc-pkcs11.so %{buildroot}%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
 
-install -pm0755 vmware-horizon-tsdr/lib/vmware/view/vdpService/libtsdrClient.so %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-
-install -pm0755 vmware-horizon-usb/bin/vmware-view-usbdloader %{buildroot}%{_bindir}
-install -pm0755 vmware-horizon-usb/lib/vmware/view/usb/{vmware-usbarbitrator,libvmware-view-usbd.so} %{buildroot}%{_prefix}/lib/vmware/view/usb
-install -pm0755 vmware-horizon-usb/lib/vmware/view/vdpService/libusbRedirectionClient.so  %{buildroot}%{_prefix}/lib/vmware/view/vdpService
-
-ln -s ../lib/vmware/view/usb/vmware-usbarbitrator %{buildroot}%{_bindir}
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 
@@ -366,7 +347,7 @@ if [ $1 -eq 0 ]; then
   %{_sbindir}/semodule -r %{name}-usb-rpm || :
 fi
 
-%files -f %{_builddir}/%{name}-%{version}/vmware-view.lang
+%files -f vmware-view.lang
 %license %{_docdir}/%{name}/open_source_licenses.txt
 %license %lang(de) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-de.txt
 %license %{_docdir}/%{name}/VMware-Horizon-Client-EULA-en.txt
@@ -483,7 +464,6 @@ fi
 %{_unitdir}/vmware-usbarbitrator.service
 %{_bindir}/vmware-usbarbitrator
 %dir %{_prefix}/lib/vmware/view/usb
-%{_prefix}/lib/vmware/view/usb/vmware-usbarbitrator
 %{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
@@ -526,6 +506,10 @@ fi
 %endif
 
 %changelog
+* Wed Jun 03 2020  Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-1
+- update to 5.4.1.15988340
+- switch "source" to tarball download
+
 * Fri Mar 20 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.0.15805449-1
 - update to 5.4.0 build 15805449
 - generate the list of binaries to run execstack on on-the-fly

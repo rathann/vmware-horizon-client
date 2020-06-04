@@ -1,9 +1,9 @@
 diff -up vmware-horizon-client-4.4.0.5167967/vmware-horizon-client/share/applications/vmware-view.desktop.d vmware-horizon-client-4.4.0.5167967/vmware-horizon-client/share/applications/vmware-view.desktop
 --- vmware-horizon-client-4.4.0.5167967/vmware-horizon-client/share/applications/vmware-view.desktop.d	2017-03-29 14:27:23.000000000 +0200
 +++ vmware-horizon-client-4.4.0.5167967/vmware-horizon-client/share/applications/vmware-view.desktop	2017-03-29 15:47:42.954105502 +0200
-@@ -1,10 +1,10 @@
+@@ -1,10 +1,9 @@
  [Desktop Entry]
- Encoding=UTF-8
+-Encoding=UTF-8
  Type=Application
 -Icon=vmware-view.png
 +Icon=vmware-view
