@@ -11,7 +11,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 1
+Release: 2
 URL: https://www.vmware.com/products/horizon.html
 Source0: %{name}-%{version}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{ver}/rn/horizon-client-linux-%{docvnd}-release-notes.html
@@ -20,6 +20,9 @@ Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source12: vmware-ftsprhvd.service
 Source13: vmware-ftscanhvd.service
+Source14: vmware-usbarbitrator.preset
+Source15: vmware-ftsprhvd.preset
+Source16: vmware-ftscanhvd.preset
 # upstream tarball is 0.5GB in size and contains binaries for all arches
 Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
@@ -195,7 +198,7 @@ cp -p %{S:1} %{S:2} ./
 %build
 
 %install
-install -dm0755 %{buildroot}%{_unitdir}
+install -dm0755 %{buildroot}{%{_presetdir},%{_unitdir}}
 
 cp -pr etc usr var %{buildroot}/
 
@@ -209,6 +212,10 @@ install -pm0644 %{S:12} %{buildroot}%{_unitdir}
 
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
+
+install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
+install -pm0644 %{S:15} %{buildroot}%{_presetdir}/96-vmware-ftsprhvd.preset
+install -pm0644 %{S:16} %{buildroot}%{_presetdir}/96-vmware-ftscanhvd.preset
 
 #install -pm0755 vmware-horizon-virtual-printing/
 
@@ -380,11 +387,13 @@ fi
 %files scannerclient
 %config(noreplace) /etc/vmware/ftplugins.conf
 %{_prefix}/lib/vmware/view/bin/ftscanhvd
+%{_presetdir}/96-vmware-ftscanhvd.preset
 %{_unitdir}/vmware-ftscanhvd.service
 
 %files serialportclient
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/ftsprhv.db
 %{_prefix}/lib/vmware/view/bin/ftsprhvd
+%{_presetdir}/96-vmware-ftsprhvd.preset
 %{_unitdir}/vmware-ftsprhvd.service
 
 %files smartcard
@@ -397,6 +406,7 @@ fi
 
 %files usb
 %attr(0640,root,root) %config(noreplace) %{_sysconfdir}/vmware/usbarb.rules
+%{_presetdir}/96-vmware-usbarbitrator.preset
 %{_unitdir}/vmware-usbarbitrator.service
 %{_bindir}/vmware-usbarbitrator
 %dir %{_prefix}/lib/vmware/view/usb
@@ -442,6 +452,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 09 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-2
+- enable services by default
+
 * Wed Jun 03 2020  Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-1
 - update to 5.4.1.15988340
 - switch "source" to tarball download
