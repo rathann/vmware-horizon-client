@@ -13,22 +13,23 @@ Name: vmware-horizon-client
 Version: %{ver}.%{rel}
 Release: 1
 URL: https://www.vmware.com/products/horizon.html
-# https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
-Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/vmware-view-client-linux-%{ver}-%{rel}.tar.gz
+Source0: %{name}-%{version}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{ver}/rn/horizon-client-linux-%{docvnd}-release-notes.html
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source12: vmware-ftsprhvd.service
 Source13: vmware-ftscanhvd.service
+# upstream tarball is 0.5GB in size and contains binaries for all arches
+Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
 License: VMware
 ExclusiveArch: x86_64
 BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
-BuildRequires: %{_bindir}/python
 BuildRequires: systemd-rpm-macros
+BuildRequires: zstd
 Provides: bundled(atk) = 2.28.1
 Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
@@ -188,88 +189,23 @@ Provides: bundled(thinprint) = 10.0.165-HF004
 Virtual Printing support plugin for VMware Horizon Client.
 
 %prep
-%setup -q -n vmware-view-client-linux-%{ver}-%{rel}
+%setup -q
 cp -p %{S:1} %{S:2} ./
 
 %build
 
 %install
-install -dm0755 %{buildroot}%{_prefix}
-install -dm0755 %{buildroot}%{_sysconfdir}/teradici
-install -dm0755 %{buildroot}%{_sysconfdir}/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
 install -dm0755 %{buildroot}%{_unitdir}
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/mediaprovider
-install -dm0755 %{buildroot}%{_prefix}/lib/vmware/view/pkcs11
-install -dm0755 %{buildroot}%{_datadir}/doc
-install -dm0755 %{buildroot}%{_var}/log/vmware
 
-for f in\
-  x64/VMware-Horizon-Client-%{ver}-%{rel}.x86_64.tar.gz\
-  x64/VMware-Horizon-PCoIP-%{ver}-%{rel}.x64.tar.gz\
-  x64/VMware-Horizon-USB-%{ver}-%{rel}.x64.tar.gz\
-  x64/VMware-Horizon-html5mmr-%{ver}-%{rel}.x64.tar.gz\
-  x64/VMware-Horizon-integratedPrinting-%{ver}-%{rel}.x64.tar.gz\
-  x64/VMware-Horizon-scannerClient-%{ver}-%{rel}.x64.tar.gz\
-  x64/VMware-Horizon-serialportClient-%{ver}-%{rel}.x64.tar.gz\
-; do
-  tar xzf ${f} -C %{buildroot}%{_prefix} --strip-components=1
-done
-
-tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-11.0.0.613-15574653.tar.gz\
-  -C %{buildroot}%{_prefix}/lib/vmware/mediaprovider\
-  --strip-components=2\
-  VMware-Horizon-Media-Provider-11.0.0.613-15574653/lin64/\*.so
-
-chrpath -d %{buildroot}%{_prefix}/lib/vmware/view/bin/ftscanhvd
-find  %{buildroot} -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
-  grep ^X | cut -d' ' -f2 | xargs -l execstack -c
+cp -pr etc usr var %{buildroot}/
 
 patch -p1 %{buildroot}%{_datadir}/applications/vmware-view.desktop %{PATCH0}
 
-mv -v %{buildroot}%{_prefix}/{doc,share/doc/%{name}}
-mv -v %{buildroot}%{_prefix}/lib{,/vmware}/libcoreavc_sdk.so
-mv -v %{buildroot}%{_prefix}/lib{,/vmware}/libpcoip_client.so
-mv -v %{buildroot}{%{_prefix}/lib/vmware/view/integratedPrinting/prlinuxcupsppd,%{_bindir}}
-mv -v %{buildroot}%{_prefix}/vmware/ftplugins.conf %{buildroot}/etc/vmware
-
-pushd %{buildroot}%{_prefix}/lib/vmware/view/html5mmr
-chmod +x \
-  HTML5VideoPlayer \
-  chrome-sandbox \
-  {,swiftshader/}lib*.so \
-
-popd
-
-rm -rf \
-  %{buildroot}%{_prefix}/debug\
-  %{buildroot}%{_prefix}/init.d\
-  %{buildroot}%{_prefix}/lib/vmware/gcc\
-  %{buildroot}%{_prefix}/lib/vmware/libcairomm-1.0.so.1\
-  %{buildroot}%{_prefix}/lib/vmware/libffi.so.6\
-  %{buildroot}%{_prefix}/lib/vmware/libjpeg.so.62\
-  %{buildroot}%{_prefix}/lib/vmware/libpcre.so.1\
-  %{buildroot}%{_prefix}/lib/vmware/libpng12.so.0\
-  %{buildroot}%{_prefix}/lib/vmware/libsigc-2.0.so.0\
-  %{buildroot}%{_prefix}/lib/vmware/rdpvcbridge/tprdp.so\
-  %{buildroot}%{_prefix}/lib/vmware/view/crtbora\
-  %{buildroot}%{_prefix}/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README}\
-  %{buildroot}%{_prefix}/lib/vmware/view/{software,vaapi{,2},vdpau}\
-  %{buildroot}%{_prefix}/patches\
-  %{buildroot}%{_prefix}/README*\
-  %{buildroot}%{_prefix}/vmware\
-
-echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware/bootstrap
-echo 'BINDIR="%{_bindir}"' > %{buildroot}%{_sysconfdir}/vmware-vix/bootstrap
-
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
-ln -s %{_libdir}/libudev.so.1 %{buildroot}%{_prefix}/lib/vmware/libudev.so.0
 
-echo "%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so" > %{buildroot}%{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
 install -pm0644 %{S:13} %{buildroot}%{_unitdir}
 
 install -pm0644 %{S:12} %{buildroot}%{_unitdir}
-
-ln -s /usr/lib64/pkcs11/opensc-pkcs11.so %{buildroot}%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
 
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
@@ -509,6 +445,7 @@ fi
 * Wed Jun 03 2020  Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-1
 - update to 5.4.1.15988340
 - switch "source" to tarball download
+- move most "installation" logic to mktarball script
 
 * Fri Mar 20 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.0.15805449-1
 - update to 5.4.0 build 15805449
