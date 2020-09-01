@@ -13,39 +13,40 @@ cleanup() {
 unset CDPATH
 pwd=$(pwd)
 name=vmware-view-client-linux
-version=5.4.1
-build=15988340
-s4br_ver=11.0.0.613
-s4br_bld=15574653
-cart=CART21FQ1
-# https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_horizon_clients/5_0
-url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${version}-${build}.tar.gz
+yymm=2006
+version=8.0.0
+build=16522670
+s4br_ver=11.0.0.614
+s4br_bld=16422350
+cart=CART21FQ2
+# https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/2006
+url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${yymm}-${version}-${build}.tar.gz
 pushd "$tmp"
 curl ${url} | tar xzf -
-pushd ${name}-${version}-${build}
+pushd ${name}-${yymm}-${version}-${build}
 
 install -dm0755 {armv7hl,x86_64}/usr
 
 pushd ARM/armhf
 for f in \
-  VMware-Horizon-Client-${version}-${build}.armhf.tar.gz \
-  VMware-Horizon-PCoIP-${version}-${build}.armhf.tar.gz \
-  VMware-Horizon-USB-${version}-${build}.armhf.tar.gz \
+  VMware-Horizon-Client-${yymm}-${version}-${build}.armhf.tar.gz \
+  VMware-Horizon-PCoIP-${yymm}-${version}-${build}.armhf.tar.gz \
+  VMware-Horizon-USB-${yymm}-${version}-${build}.armhf.tar.gz \
 ; do
-  tar xzf ${f} -C ${tmp}/${name}-${version}-${build}/armv7hl/usr --strip-components=1
+  tar xzf ${f} -C ${tmp}/${name}-${yymm}-${version}-${build}/armv7hl/usr --strip-components=1
 done
 popd
 pushd x64
 for f in \
-  VMware-Horizon-Client-${version}-${build}.x86_64.tar.gz \
-  VMware-Horizon-PCoIP-${version}-${build}.x64.tar.gz \
-  VMware-Horizon-USB-${version}-${build}.x64.tar.gz \
-  VMware-Horizon-html5mmr-${version}-${build}.x64.tar.gz \
-  VMware-Horizon-integratedPrinting-${version}-${build}.x64.tar.gz \
-  VMware-Horizon-scannerClient-${version}-${build}.x64.tar.gz \
-  VMware-Horizon-serialportClient-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-Client-${yymm}-${version}-${build}.x86_64.tar.gz \
+  VMware-Horizon-PCoIP-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-USB-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-html5mmr-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-integratedPrinting-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-scannerClient-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-serialportClient-${yymm}-${version}-${build}.x64.tar.gz \
 ; do
-  tar xzf ${f} -C ${tmp}/${name}-${version}-${build}/x86_64/usr --strip-components=1
+  tar xzf ${f} -C ${tmp}/${name}-${yymm}-${version}-${build}/x86_64/usr --strip-components=1
 done
 popd
 
@@ -71,6 +72,7 @@ rm -rf \
   usr/lib/vmware/libpcre.so.1 \
   usr/lib/vmware/libpng12.so.0 \
   usr/lib/vmware/libsigc-2.0.so.0 \
+  usr/lib/vmware/libx264.so.157.5 \
   usr/lib/vmware/rdpvcbridge/tprdp.so \
   usr/lib/vmware/view/crtbora \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
@@ -111,8 +113,8 @@ tar xzf ../SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-${s4br_ve
 popd
 rm -rf ARM i386 'Printer Redirection' 'SkypeForBusiness Redirection' x64
 popd
-mv ${name}-${version}-${build} vmware-horizon-client-${version}.${build}
+mv ${name}-${yymm}-${version}-${build} vmware-horizon-client-${yymm}-${version}-${build}
 tar -c --use-compress-program=zstdmt \
-  -f ${pwd}/vmware-horizon-client-${version}.${build}.tar.zstd \
-  vmware-horizon-client-${version}.${build}
+  -f ${pwd}/vmware-horizon-client-${yymm}-${version}-${build}.tar.zstd \
+  vmware-horizon-client-${yymm}-${version}-${build}
 popd

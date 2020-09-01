@@ -2,11 +2,11 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART21FQ1
-%global ver    5.4.1
-%global docv   %(n=%{ver}; echo ${n%.[0-9]})
-%global docvnd %(n=%{ver}; echo ${n//.})
-%global rel    15988340
+%global cart   CART21FQ2
+%global yymm   2006
+%global ver    8.0.0
+%global rel    16522670
+%global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
 %else
@@ -15,12 +15,12 @@
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
-Version: %{ver}.%{rel}
-Release: 3
+Version: %{yymm}.%{ver}.%{rel}
+Release: 1
 URL: https://www.vmware.com/products/horizon.html
-Source0: %{name}-%{version}.tar.zstd
-Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{ver}/rn/horizon-client-linux-%{docvnd}-release-notes.html
-Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{docv}/horizon-client-linux-installation.pdf
+Source0: %{name}-%{fver}.tar.zstd
+Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
+Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source12: vmware-ftsprhvd.service
@@ -31,6 +31,7 @@ Source16: vmware-ftscanhvd.preset
 # upstream tarball is 0.5GB in size and contains binaries for all arches
 Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
+Patch1: %{name}-fedora.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
 %ifarch x86_64
@@ -39,6 +40,7 @@ BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
+BuildRequires: x264-libs%{_isa}
 BuildRequires: zstd
 Provides: bundled(atk) = 2.28.1
 Provides: bundled(atkmm) = 2.22.7
@@ -135,6 +137,7 @@ Requires: %{name}-pcoip = %{version}-%{release}
 Requires: libspeex.so.1%{mark64}
 Requires: libtheoradec.so.1%{mark64}
 Requires: libtheoraenc.so.1%{mark64}
+Requires: x264-libs%{_isa}
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
@@ -192,16 +195,10 @@ Requires(postun): %{_sbindir}/semodule
 %description usb
 USB Redirection support plugin for VMware Horizon Client.
 
-%package virtual-printing
-Summary: Virtual Printing support plugin for VMware Horizon Client
-Requires: %{name} = %{version}-%{release}
-Provides: bundled(thinprint) = 10.0.165-HF004
-
-%description virtual-printing
-Virtual Printing support plugin for VMware Horizon Client.
-
 %prep
-%setup -q
+%setup -q -n %{name}-%{fver}
+%patch0 -p1
+%patch1 -p1
 cp -p %{S:1} %{S:2} ./
 find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
   grep ^X | cut -d' ' -f2 | xargs -l execstack -c
@@ -211,6 +208,7 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
+ln -s ../../%{_lib}/libx264.so.* usr/lib/vmware/libx264.so.157.5
 popd
 
 %build
@@ -221,8 +219,6 @@ install -dm0755 %{buildroot}{%{_presetdir},%{_unitdir}}
 pushd %{_arch}
 cp -pr etc usr var %{buildroot}/
 popd
-
-patch -p1 %{buildroot}%{_datadir}/applications/vmware-view.desktop %{PATCH0}
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 
@@ -236,8 +232,6 @@ install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
 install -pm0644 %{S:15} %{buildroot}%{_presetdir}/96-vmware-ftsprhvd.preset
 install -pm0644 %{S:16} %{buildroot}%{_presetdir}/96-vmware-ftscanhvd.preset
-
-#install -pm0755 vmware-horizon-virtual-printing/
 
 %find_lang vmware-view
 
@@ -320,7 +314,7 @@ fi
 %license %lang(ko) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ko.txt
 %license %lang(zh_CN) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_CN.txt
 %license %lang(zh_TW) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_TW.txt
-%doc horizon-client-linux-%{docvnd}-release-notes.html
+%doc horizon-client-linux-%{yymm}-release-notes.html
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
@@ -337,6 +331,8 @@ fi
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/config
+%dir %{_prefix}/lib/vmware/view/env
+%{_prefix}/lib/vmware/view/env/env_utils.sh
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
 %{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libcrtbora.so
@@ -390,7 +386,6 @@ fi
 %dir %{_sysconfdir}/teradici
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin.conf
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin_defaults.conf
-%{_bindir}/vmware-flash-projector
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
 %ifarch x86_64
@@ -407,13 +402,11 @@ fi
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
-%ifarch x86_64
-%{_prefix}/lib/vmware/view/vdpService/libviewMPClient.so
-%endif
 %{_prefix}/lib/vmware/xkeymap
 
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
+%{_prefix}/lib/vmware/libx264.so.157.5
 
 %files scannerclient
 %config(noreplace) /etc/vmware/ftplugins.conf
@@ -444,45 +437,11 @@ fi
 %{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
-%if 0
-%files virtual-printing
-%{_prefix}/lib/freerdp/tprdp-client.so
-%{_prefix}/lib/vmware/rdpvcbridge/tprdp.so
-%{_prefix}/lib/vmware/view/virtualPrinting
-%{_prefix}/lib/vmware/view/virtualPrinting/conf
-%{_prefix}/lib/vmware/view/virtualPrinting/conf/thnuclnt.convs
-%{_prefix}/lib/vmware/view/virtualPrinting/conf/thnuclnt.types
-%{_prefix}/lib/vmware/view/virtualPrinting/init.d
-%{_prefix}/lib/vmware/view/virtualPrinting/init.d/linux
-%{_prefix}/lib/vmware/view/virtualPrinting/init.d/linux/thnuclnt
-%{_prefix}/lib/vmware/view/virtualPrinting/NameTranslationEx2.reg
-%{_prefix}/lib/vmware/view/virtualPrinting/README
-%{_prefix}/lib/vmware/view/virtualPrinting/rev.rc
-%{_prefix}/lib/vmware/view/virtualPrinting/setup.sh
-%{_prefix}/lib/vmware/view/virtualPrinting/thnuSetup_VMW_VHV_Mac.sh
-%{_prefix}/lib/vmware/view/virtualPrinting/uninstall.sh
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/build.spec
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnuchk
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnuclnt
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnuclntd
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnuconf
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnucups
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/.thnumod
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-NOSSL/thnurdp
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/build.spec
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnuchk.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnuclntd.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnuclnt.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnuconf.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnucups.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/.thnumod.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/thnurdp.so
-%{_prefix}/lib/vmware/view/virtualPrinting/x86_64-linux-vmAppLd/vmappld
-%endif
-
 %changelog
+* Tue Sep 01 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-1
+- update to 2006 (8.0.0.16522670)
+- unbundle libx264
+
 * Mon Jun 29 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-3
 - add armv7hl support
 
