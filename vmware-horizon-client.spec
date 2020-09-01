@@ -16,7 +16,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1
+Release: 1%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 Source0: %{name}-%{fver}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
@@ -208,7 +208,7 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
-ln -s ../../%{_lib}/libx264.so.* usr/lib/vmware/libx264.so.157.5
+ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
 popd
 
 %build
