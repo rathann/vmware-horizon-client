@@ -24,8 +24,17 @@ pushd "$tmp"
 curl ${url} | tar xzf -
 pushd ${name}-${version}-${build}
 
-install -dm0755 usr
+install -dm0755 {armv7hl,x86_64}/usr
 
+pushd ARM/armhf
+for f in \
+  VMware-Horizon-Client-${version}-${build}.armhf.tar.gz \
+  VMware-Horizon-PCoIP-${version}-${build}.armhf.tar.gz \
+  VMware-Horizon-USB-${version}-${build}.armhf.tar.gz \
+; do
+  tar xzf ${f} -C ${tmp}/${name}-${version}-${build}/armv7hl/usr --strip-components=1
+done
+popd
 pushd x64
 for f in \
   VMware-Horizon-Client-${version}-${build}.x86_64.tar.gz \
@@ -36,37 +45,21 @@ for f in \
   VMware-Horizon-scannerClient-${version}-${build}.x64.tar.gz \
   VMware-Horizon-serialportClient-${version}-${build}.x64.tar.gz \
 ; do
-  tar xzf ${f} -C ${tmp}/${name}-${version}-${build}/usr --strip-components=1
+  tar xzf ${f} -C ${tmp}/${name}-${version}-${build}/x86_64/usr --strip-components=1
 done
 popd
 
+for target in armv7hl x86_64 ; do
+pushd ${target}
 install -dm0755 etc/teradici
 install -dm0755 etc/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
 install -dm0755 usr/bin
-install -dm0755 usr/lib/vmware/mediaprovider
 install -dm0755 usr/lib/vmware/view/pkcs11
 install -dm0755 usr/share/doc
 install -dm0755 var/log/vmware
-tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}.tar.gz\
-  -C ${tmp}/${name}-${version}-${build}/usr/lib/vmware/mediaprovider\
-  --strip-components=2\
-  VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}/lin64/\*.so
-rm -rf ARM i386 'Printer Redirection' 'SkypeForBusiness Redirection' x64
 
 mv usr/{doc,share/doc/vmware-horizon-client}
-mv usr/lib{,/vmware}/libcoreavc_sdk.so
 mv usr/lib{,/vmware}/libpcoip_client.so
-mv {usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd,usr/bin/}
-mv usr/vmware/ftplugins.conf etc/vmware
-
-pushd usr/lib/vmware/view/html5mmr
-find . -type f | xargs chmod 644
-chmod 0755 \
-  HTML5VideoPlayer \
-  chrome-sandbox \
-  {,swiftshader/}lib*.so \
-
-popd
 
 rm -rf \
   usr/debug \
@@ -84,19 +77,39 @@ rm -rf \
   usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
   usr/patches \
   usr/README* \
-  usr/vmware \
-
-chrpath -d usr/lib/vmware/view/bin/ftscanhvd
-find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
-  grep ^X | cut -d' ' -f2 | xargs -l execstack -c
 
 echo 'BINDIR="/usr/bin"' > etc/vmware/bootstrap
 echo 'BINDIR="/usr/bin"' > etc/vmware-vix/bootstrap
 echo "/usr/lib/pcoip/vchan_plugins/libvdpservice.so" > etc/vmware/vdp/host_overlay_plugins/config
 
-ln -s ../../lib64/libudev.so.1 usr/lib/vmware/libudev.so.0
-ln -s ../../../../lib64/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
+popd
+done
 
+pushd armv7hl
+mv usr/lib{,/vmware}/libpcoip_client_neon.so
+popd
+
+pushd x86_64
+mv usr/lib{,/vmware}/libcoreavc_sdk.so
+mv {usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd,usr/bin/}
+mv usr/vmware/ftplugins.conf etc/vmware
+rm -rf usr/vmware
+pushd usr/lib/vmware/view/html5mmr
+find . -type f | xargs chmod 644
+chmod 0755 \
+  HTML5VideoPlayer \
+  chrome-sandbox \
+  {,swiftshader/}lib*.so \
+
+popd
+install -dm0755 usr/lib/vmware/mediaprovider
+tar xzf ../SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}.tar.gz\
+  -C usr/lib/vmware/mediaprovider\
+  --strip-components=2\
+  VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}/lin64/\*.so
+
+popd
+rm -rf ARM i386 'Printer Redirection' 'SkypeForBusiness Redirection' x64
 popd
 mv ${name}-${version}-${build} vmware-horizon-client-${version}.${build}
 tar -c --use-compress-program=zstdmt \

@@ -7,11 +7,16 @@
 %global docv   %(n=%{ver}; echo ${n%.[0-9]})
 %global docvnd %(n=%{ver}; echo ${n//.})
 %global rel    15988340
+%ifarch x86_64
+%global mark64 ()(64bit)
+%else
+%global mark64 %nil
+%endif
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{ver}.%{rel}
-Release: 2
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 Source0: %{name}-%{version}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{ver}/rn/horizon-client-linux-%{docvnd}-release-notes.html
@@ -27,8 +32,10 @@ Source16: vmware-ftscanhvd.preset
 Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
 License: VMware
-ExclusiveArch: x86_64
+ExclusiveArch: armv7hl x86_64
+%ifarch x86_64
 BuildRequires: chrpath
+%endif
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
@@ -56,7 +63,7 @@ Provides: bundled(zlib) = 1.2.11
 Provides: %{name}-seamless-window = %{version}-%{release}
 Obsoletes: %{name}-seamless-window < 5.2.0.14604769
 Requires: %{_bindir}/pidof
-Requires: libudev.so.1()(64bit)
+Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
 %global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
@@ -108,9 +115,11 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
+%ifarch x86_64
 Requires: freerdp1.2
-Requires: libavcodec.so.58()(64bit)
-Requires: libavutil.so.56()(64bit)
+%endif
+Requires: libavcodec.so.58%{mark64}
+Requires: libavutil.so.56%{mark64}
 Requires: %{name} = %{version}-%{release}
 Provides: bundled(pcoip-soft-clients) = 3.67
 Provides: bundled(openssl) = 1.0.2t
@@ -123,9 +132,9 @@ Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
-Requires: libspeex.so.1()(64bit)
-Requires: libtheoradec.so.1()(64bit)
-Requires: libtheoraenc.so.1()(64bit)
+Requires: libspeex.so.1%{mark64}
+Requires: libtheoradec.so.1%{mark64}
+Requires: libtheoraenc.so.1%{mark64}
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
@@ -137,7 +146,7 @@ Summary: Scanner redirection support plugin for VMware Horizon Client
 Provides: bundled(scanner_linux) = 2.4.0.12
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
-Requires: libudev.so.1()(64bit)
+Requires: libudev.so.1%{mark64}
 Requires(post): %{_sbindir}/semodule
 Requires(postun): %{_sbindir}/semodule
 
@@ -151,7 +160,7 @@ Requires Horizon Agent 7.8 or later on the virtual desktop.
 Summary: Serial port redirection support plugin for VMware Horizon Client
 Provides: bundled(serial_linux) = 2.4.1
 Requires: %{name} = %{version}-%{release}
-Requires: libudev.so.1()(64bit)
+Requires: libudev.so.1%{mark64}
 
 %description serialportclient
 Serial port redirection support plugin for VMware Horizon Client.
@@ -194,13 +203,24 @@ Virtual Printing support plugin for VMware Horizon Client.
 %prep
 %setup -q
 cp -p %{S:1} %{S:2} ./
+find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
+  grep ^X | cut -d' ' -f2 | xargs -l execstack -c
+pushd %{_arch}
+%ifarch x86_64
+chrpath -d usr/lib/vmware/view/bin/ftscanhvd
+%endif
+ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
+ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
+popd
 
 %build
 
 %install
 install -dm0755 %{buildroot}{%{_presetdir},%{_unitdir}}
 
+pushd %{_arch}
 cp -pr etc usr var %{buildroot}/
+popd
 
 patch -p1 %{buildroot}%{_datadir}/applications/vmware-view.desktop %{PATCH0}
 
@@ -343,6 +363,7 @@ fi
 %{_datadir}/X11/xorg.conf.d/20-vmware-hid.conf
 %{_var}/log/vmware
 
+%ifarch x86_64
 %files html5mmr
 %{_prefix}/lib/vmware/libjson_linux-gcc-4.1.1_libmt.so
 %{_prefix}/lib/vmware/view/html5mmr
@@ -363,6 +384,7 @@ fi
 %dir %{_sysconfdir}/vmware/vdp/host_overlay_plugins
 %config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
+%endif
 
 %files pcoip
 %dir %{_sysconfdir}/teradici
@@ -371,14 +393,23 @@ fi
 %{_bindir}/vmware-flash-projector
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
+%ifarch x86_64
 %{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
+%endif
 %{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
 %{_prefix}/lib/vmware/libpcoip_client.so
+%ifarch armv7hl
+%{_prefix}/lib/vmware/libpcoip_client_neon.so
+%endif
+%ifarch x86_64
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
+%endif
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
+%ifarch x86_64
 %{_prefix}/lib/vmware/view/vdpService/libviewMPClient.so
+%endif
 %{_prefix}/lib/vmware/xkeymap
 
 %files rtav
@@ -452,6 +483,9 @@ fi
 %endif
 
 %changelog
+* Mon Jun 29 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-3
+- add armv7hl support
+
 * Tue Jun 09 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 5.4.1.15988340-2
 - enable services by default
 
