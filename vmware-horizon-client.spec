@@ -16,7 +16,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 Source0: %{name}-%{fver}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
@@ -209,6 +209,13 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
 ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
+pushd usr/lib/vmware/view
+for v in software vaapi2 vdpau ; do
+  mkdir ${v}
+  ln -s ../../../../lib64/libavcodec.so.58 ${v}/
+  ln -s ../../../../lib64/libavutil.so.56 ${v}/
+done
+popd
 popd
 
 %build
@@ -402,6 +409,9 @@ fi
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
+%{_prefix}/lib/vmware/view/software
+%{_prefix}/lib/vmware/view/vaapi2
+%{_prefix}/lib/vmware/view/vdpau
 %{_prefix}/lib/vmware/xkeymap
 
 %files rtav
@@ -438,6 +448,9 @@ fi
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %changelog
+* Thu Sep 03 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-2
+- add symlinks to system FFmpeg libraries, they seem to be hardcoded
+
 * Tue Sep 01 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-1
 - update to 2006 (8.0.0.16522670)
 - unbundle libx264
