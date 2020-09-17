@@ -16,7 +16,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 Source0: %{name}-%{fver}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
@@ -117,9 +117,6 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
-%ifarch x86_64
-Requires: freerdp1.2
-%endif
 Requires: libavcodec.so.58%{mark64}
 Requires: libavutil.so.56%{mark64}
 Requires: %{name} = %{version}-%{release}
@@ -448,6 +445,9 @@ fi
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %changelog
+* Thu Sep 17 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-3
+- drop freerdp1.2 requirement
+
 * Thu Sep 03 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-2
 - add symlinks to system FFmpeg libraries, they seem to be hardcoded
 
