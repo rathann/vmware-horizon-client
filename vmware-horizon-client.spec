@@ -18,6 +18,7 @@ Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
 Release: 3%{?dist}
 URL: https://www.vmware.com/products/horizon.html
+# Source0 is built by mktarball.sh script, see Source100 comment
 Source0: %{name}-%{fver}.tar.zstd
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
@@ -29,6 +30,7 @@ Source14: vmware-usbarbitrator.preset
 Source15: vmware-ftsprhvd.preset
 Source16: vmware-ftscanhvd.preset
 # upstream tarball is 0.5GB in size and contains binaries for all arches
+# therefore run mktarball.sh before rpmbuild and provide the generated .tar.zstd  as Source0
 Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
 Patch1: %{name}-fedora.patch

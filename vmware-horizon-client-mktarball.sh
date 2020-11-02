@@ -22,7 +22,12 @@ cart=CART21FQ2
 # https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${yymm}-${version}-${build}.tar.gz
 pushd "$tmp"
+
+if [ -n "$1" ] ; then
+  tar xzf "$1"
+else
 curl ${url} | tar xzf -
+fi
 pushd ${name}-${yymm}-${version}-${build}
 
 install -dm0755 {armv7hl,x86_64}/usr
