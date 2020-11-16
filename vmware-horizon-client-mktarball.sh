@@ -19,7 +19,7 @@ build=16522670
 s4br_ver=11.0.0.614
 s4br_bld=16422350
 cart=CART21FQ2
-# https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/2006
+# https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${yymm}-${version}-${build}.tar.gz
 pushd "$tmp"
 curl ${url} | tar xzf -
