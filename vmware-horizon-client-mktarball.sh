@@ -26,7 +26,7 @@ pushd "$tmp"
 if [ -n "$1" ] ; then
   tar xzf "$1"
 else
-curl ${url} | tar xzf -
+  curl ${url} | tar xzf -
 fi
 pushd ${name}-${yymm}-${version}-${build}
 
