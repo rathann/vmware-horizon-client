@@ -38,6 +38,7 @@ License: VMware
 ExclusiveArch: armv7hl x86_64
 %ifarch x86_64
 BuildRequires: chrpath
+BuildRequires: x264-libs%{_isa}
 %endif
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
@@ -129,7 +130,6 @@ PCoIP support plugin for VMware Horizon Client.
 
 Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 
-%ifarch x86_64
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
@@ -137,13 +137,11 @@ Requires: libspeex.so.1%{mark64}
 Requires: libtheoradec.so.1%{mark64}
 Requires: libtheoraenc.so.1%{mark64}
 Requires: x264-libs%{_isa}
-BuildRequires: x264-libs%{_isa}
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
 
 Requires Horizon Agent 7.0 or later on the virtual desktop.
-%endif
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
@@ -206,12 +204,10 @@ find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
 pushd %{_target_cpu}
 %ifarch x86_64
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
+ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
 %endif
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
-%ifarch x86_64
-ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
-%endif
 pushd usr/lib/vmware/view
 for v in software vaapi2 vdpau ; do
   mkdir ${v}
@@ -232,20 +228,15 @@ popd
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 
-%ifarch x86_64
-install -pm0644 %{S:13} %{buildroot}%{_unitdir}
-
-install -pm0644 %{S:12} %{buildroot}%{_unitdir}
-%endif
-
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
-
-install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
 %ifarch x86_64
+install -pm0644 %{S:13} %{buildroot}%{_unitdir}
+install -pm0644 %{S:12} %{buildroot}%{_unitdir}
 install -pm0644 %{S:15} %{buildroot}%{_presetdir}/96-vmware-ftsprhvd.preset
 install -pm0644 %{S:16} %{buildroot}%{_presetdir}/96-vmware-ftscanhvd.preset
 %endif
+install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
 
 %find_lang vmware-view
 
@@ -348,25 +339,19 @@ fi
 %dir %{_prefix}/lib/vmware/view/env
 %{_prefix}/lib/vmware/view/env/env_utils.sh
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
-%ifarch x86_64
-%{_prefix}/lib/vmware/libcoreavc_sdk.so
-%endif
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
-%ifarch x86_64
-%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
-%endif
 %{_prefix}/lib/vmware/libgiomm-2.4.so.1
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
-%ifarch x86_64
-%{_prefix}/lib/vmware/libgtkmm-3.0.so.1
-%{_prefix}/lib/vmware/libpangomm-1.4.so.1
-%endif
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
 %ifarch x86_64
+%{_prefix}/lib/vmware/libcoreavc_sdk.so
+%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
+%{_prefix}/lib/vmware/libgtkmm-3.0.so.1
+%{_prefix}/lib/vmware/libpangomm-1.4.so.1
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
 %endif
@@ -380,6 +365,45 @@ fi
 %{_datadir}/pixmaps/vmware-view.png
 %{_datadir}/X11/xorg.conf.d/20-vmware-hid.conf
 %{_var}/log/vmware
+
+%files pcoip
+%dir %{_sysconfdir}/teradici
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin.conf
+%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin_defaults.conf
+%dir %{_sysconfdir}/vmware/vdp/host_overlay_plugins
+%config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
+%dir %{_prefix}/lib/pcoip
+%dir %{_prefix}/lib/pcoip/vchan_plugins
+%ifarch x86_64
+%{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
+%{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
+%endif
+%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
+%{_prefix}/lib/vmware/libpcoip_client.so
+%ifarch armv7hl
+%{_prefix}/lib/vmware/libpcoip_client_neon.so
+%endif
+%{_prefix}/lib/vmware/view/client/vmware-remotemks
+%{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
+%{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
+%{_prefix}/lib/vmware/view/software
+%{_prefix}/lib/vmware/view/vaapi2
+%{_prefix}/lib/vmware/view/vdpau
+%{_prefix}/lib/vmware/xkeymap
+
+%files smartcard
+%{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
+%dir %{_prefix}/lib/vmware/view/pkcs11
+%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
+
+%files usb
+%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/vmware/usbarb.rules
+%{_presetdir}/96-vmware-usbarbitrator.preset
+%{_unitdir}/vmware-usbarbitrator.service
+%{_bindir}/vmware-usbarbitrator
+%dir %{_prefix}/lib/vmware/view/usb
+%{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
+%{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %ifarch x86_64
 %files html5mmr
@@ -400,36 +424,7 @@ fi
 
 %files mmr
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
-%endif
 
-%files pcoip
-%dir %{_sysconfdir}/teradici
-%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin.conf
-%attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin_defaults.conf
-%dir %{_sysconfdir}/vmware/vdp/host_overlay_plugins
-%config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
-%dir %{_prefix}/lib/pcoip
-%dir %{_prefix}/lib/pcoip/vchan_plugins
-%ifarch x86_64
-%{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
-%endif
-%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
-%{_prefix}/lib/vmware/libpcoip_client.so
-%ifarch armv7hl
-%{_prefix}/lib/vmware/libpcoip_client_neon.so
-%endif
-%ifarch x86_64
-%{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
-%endif
-%{_prefix}/lib/vmware/view/client/vmware-remotemks
-%{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
-%{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
-%{_prefix}/lib/vmware/view/software
-%{_prefix}/lib/vmware/view/vaapi2
-%{_prefix}/lib/vmware/view/vdpau
-%{_prefix}/lib/vmware/xkeymap
-
-%ifarch x86_64
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 %{_prefix}/lib/vmware/libx264.so.157.5
@@ -445,26 +440,10 @@ fi
 %{_prefix}/lib/vmware/view/bin/ftsprhvd
 %{_presetdir}/96-vmware-ftsprhvd.preset
 %{_unitdir}/vmware-ftsprhvd.service
-%endif
 
-%files smartcard
-%{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
-%dir %{_prefix}/lib/vmware/view/pkcs11
-%{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
-
-%ifarch x86_64
 %files tsdr
 %{_prefix}/lib/vmware/view/vdpService/libtsdrClient.so
 %endif
-
-%files usb
-%attr(0640,root,root) %config(noreplace) %{_sysconfdir}/vmware/usbarb.rules
-%{_presetdir}/96-vmware-usbarbitrator.preset
-%{_unitdir}/vmware-usbarbitrator.service
-%{_bindir}/vmware-usbarbitrator
-%dir %{_prefix}/lib/vmware/view/usb
-%{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
-%{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %changelog
 * Wed Nov 18 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-4
