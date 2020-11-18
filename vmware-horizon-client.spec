@@ -42,7 +42,6 @@ BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
-BuildRequires: x264-libs%{_isa}
 BuildRequires: zstd
 Provides: bundled(atk) = 2.28.1
 Provides: bundled(atkmm) = 2.22.7
@@ -130,6 +129,7 @@ PCoIP support plugin for VMware Horizon Client.
 
 Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 
+%ifarch x86_64
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
@@ -137,11 +137,13 @@ Requires: libspeex.so.1%{mark64}
 Requires: libtheoradec.so.1%{mark64}
 Requires: libtheoraenc.so.1%{mark64}
 Requires: x264-libs%{_isa}
+BuildRequires: x264-libs%{_isa}
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
 
 Requires Horizon Agent 7.0 or later on the virtual desktop.
+%endif
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
@@ -201,13 +203,15 @@ USB Redirection support plugin for VMware Horizon Client.
 cp -p %{S:1} %{S:2} ./
 find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
   grep ^X | cut -d' ' -f2 | xargs -l execstack -c
-pushd %{_arch}
+pushd %{_target_cpu}
 %ifarch x86_64
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
+%ifarch x86_64
 ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
+%endif
 pushd usr/lib/vmware/view
 for v in software vaapi2 vdpau ; do
   mkdir ${v}
@@ -222,22 +226,26 @@ popd
 %install
 install -dm0755 %{buildroot}{%{_presetdir},%{_unitdir}}
 
-pushd %{_arch}
+pushd %{_target_cpu}
 cp -pr etc usr var %{buildroot}/
 popd
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
 
+%ifarch x86_64
 install -pm0644 %{S:13} %{buildroot}%{_unitdir}
 
 install -pm0644 %{S:12} %{buildroot}%{_unitdir}
+%endif
 
 install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
 install -pm0644 %{S:11} %{buildroot}%{_unitdir}
 
 install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
+%ifarch x86_64
 install -pm0644 %{S:15} %{buildroot}%{_presetdir}/96-vmware-ftsprhvd.preset
 install -pm0644 %{S:16} %{buildroot}%{_presetdir}/96-vmware-ftscanhvd.preset
+%endif
 
 %find_lang vmware-view
 
@@ -340,20 +348,28 @@ fi
 %dir %{_prefix}/lib/vmware/view/env
 %{_prefix}/lib/vmware/view/env/env_utils.sh
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
+%ifarch x86_64
 %{_prefix}/lib/vmware/libcoreavc_sdk.so
+%endif
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
+%ifarch x86_64
 %{_prefix}/lib/vmware/libgdkmm-3.0.so.1
+%endif
 %{_prefix}/lib/vmware/libgiomm-2.4.so.1
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
+%ifarch x86_64
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
 %{_prefix}/lib/vmware/libpangomm-1.4.so.1
+%endif
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
+%ifarch x86_64
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
+%endif
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/settings
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
@@ -383,8 +399,6 @@ fi
 %{_prefix}/lib/vmware/mediaprovider/libVMWMediaProvider.so
 
 %files mmr
-%dir %{_sysconfdir}/vmware/vdp/host_overlay_plugins
-%config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
 %endif
 
@@ -392,6 +406,8 @@ fi
 %dir %{_sysconfdir}/teradici
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin.conf
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/teradici/pcoip_admin_defaults.conf
+%dir %{_sysconfdir}/vmware/vdp/host_overlay_plugins
+%config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
 %ifarch x86_64
@@ -413,6 +429,7 @@ fi
 %{_prefix}/lib/vmware/view/vdpau
 %{_prefix}/lib/vmware/xkeymap
 
+%ifarch x86_64
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 %{_prefix}/lib/vmware/libx264.so.157.5
@@ -428,14 +445,17 @@ fi
 %{_prefix}/lib/vmware/view/bin/ftsprhvd
 %{_presetdir}/96-vmware-ftsprhvd.preset
 %{_unitdir}/vmware-ftsprhvd.service
+%endif
 
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
 %dir %{_prefix}/lib/vmware/view/pkcs11
 %{_prefix}/lib/vmware/view/pkcs11/libopenscpkcs11.so
 
+%ifarch x86_64
 %files tsdr
 %{_prefix}/lib/vmware/view/vdpService/libtsdrClient.so
+%endif
 
 %files usb
 %attr(0640,root,root) %config(noreplace) %{_sysconfdir}/vmware/usbarb.rules
@@ -447,6 +467,10 @@ fi
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
 %changelog
+* Wed Nov 18 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-4
+- fix build on ARM 32-bit (rtav, scannerclient, serialportclient and tsdr are unavailable)
+- move vdp config to correct subpackage (pcoip)
+
 * Thu Sep 17 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-3
 - drop freerdp1.2 requirement
 
