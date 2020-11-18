@@ -16,7 +16,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 3%{?dist}
+Release: 4%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # Source0 is built by mktarball.sh script, see Source100 comment
 Source0: %{name}-%{fver}.tar.zstd
