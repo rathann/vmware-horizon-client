@@ -16,7 +16,7 @@ obtaining permission from VMware to distribute binaries is welcome.
 Building
 --------
 ```
-$ git clone https://gitlab.com/greysector/vmware-horizon-client.git
+$ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
 $ fedpkg srpm
 $ mock -r fedora-33-x86_64-rpmfusion_free vmware-horizon-client-2006.8.0.0.16522670-4.fc33.src.rpm
