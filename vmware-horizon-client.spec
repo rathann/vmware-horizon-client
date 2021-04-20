@@ -2,10 +2,10 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART21FQ2
-%global yymm   2006
-%global ver    8.0.0
-%global rel    16522670
+%global cart   CART22FQ1
+%global yymm   2103
+%global ver    8.2.0
+%global rel    17742757
 %global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
@@ -16,7 +16,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 4%{?dist}
+Release: 1%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # Source0 is built by mktarball.sh script, see Source100 comment
 Source0: %{name}-%{fver}.tar.zstd
@@ -49,17 +49,16 @@ Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.68.0
+Provides: bundled(curl) = 7.74
 Provides: bundled(glibmm24) = 2.44.0
 Provides: bundled(gtkmm30) = 3.10.1
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(icu) = 60.2
 Provides: bundled(libjpeg-turbo) = 1.4.2
-Provides: bundled(libpng12) = 1.2.59
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
-Provides: bundled(openssl) = 1.0.2t
+Provides: bundled(openssl) = 1.0.2y
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(pangomm) = 2.34.0
 Provides: bundled(speex) = 1.2rc3
@@ -70,7 +69,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -79,7 +78,7 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package html5mmr
 Summary: HTML5 Multimedia Redirection support plugin for VMware Horizon Client
-Provides: bundled(chromium-embedded-framework) = 75.0.3770.100
+Provides: bundled(chromium-embedded-framework) = 87.0.4280.20
 Provides: bundled(webrtc) = 90
 Requires: %{name} = %{version}-%{release}
 
@@ -100,7 +99,9 @@ Summary: Virtualization Pack for Skype for Business
 Requires: %{name} = %{version}-%{release}
 Provides: bundled(hidapi) = 0.8.9
 Provides: bundled(json-c) = 0.12.1
-Provides: bundled(libsrtp) = 2.1.0.0-pre
+Provides: bundled(libjpeg-turbo) = 2.0.5
+Provides: bundled(libsrtp) = 2.2.0
+Provides: bundled(openssl) = 1.0.2y
 Provides: bundled(webrtc) = 90
 
 %description media-provider
@@ -109,8 +110,8 @@ Virtualization Pack for Skype for Business.
 %package mmr
 Summary: Multimedia Redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Requires: gstreamer-ffmpeg%{_isa}
-Recommends: gstreamer-vaapi%{_isa}
+Requires: gstreamer1-libav%{_isa}
+Recommends: gstreamer1-vaapi%{_isa}
 
 %description mmr
 Multimedia Redirection support plugin for VMware Horizon Client.
@@ -122,8 +123,9 @@ Summary: PCoIP support plugin for VMware Horizon Client
 Requires: libavcodec.so.58%{mark64}
 Requires: libavutil.so.56%{mark64}
 Requires: %{name} = %{version}-%{release}
-Provides: bundled(pcoip-soft-clients) = 3.67
-Provides: bundled(openssl) = 1.0.2t
+Provides: bundled(libpng) = 1.6.37
+Provides: bundled(pcoip-soft-clients) = 3.75
+Provides: bundled(openssl) = 1.0.2w
 
 %description pcoip
 PCoIP support plugin for VMware Horizon Client.
@@ -145,7 +147,7 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package scannerclient
 Summary: Scanner redirection support plugin for VMware Horizon Client
-Provides: bundled(scanner_linux) = 2.4.0.12
+Provides: bundled(scanner_linux) = 2.6.3
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1%{mark64}
@@ -160,7 +162,7 @@ Requires Horizon Agent 7.8 or later on the virtual desktop.
 
 %package serialportclient
 Summary: Serial port redirection support plugin for VMware Horizon Client
-Provides: bundled(serial_linux) = 2.4.1
+Provides: bundled(serial_linux) = 2.6.3
 Requires: %{name} = %{version}-%{release}
 Requires: libudev.so.1%{mark64}
 
@@ -204,7 +206,7 @@ find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
 pushd %{_target_cpu}
 %ifarch x86_64
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
-ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.5
+ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.6
 %endif
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
@@ -330,17 +332,21 @@ fi
 %dir %{_sysconfdir}/vmware/vdp
 %dir %{_sysconfdir}/vmware-vix
 %config %{_sysconfdir}/vmware-vix/bootstrap
+%{_bindir}/vmware-url-filter
 %{_bindir}/vmware-view
 %{_bindir}/vmware-view-lib-scan
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
 %dir %{_prefix}/lib/vmware
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/config
+%{_prefix}/lib/vmware/view/dct
 %dir %{_prefix}/lib/vmware/view/env
 %{_prefix}/lib/vmware/view/env/env_utils.sh
+%{_prefix}/lib/vmware/view/env/vmware-view.info
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
+%{_prefix}/lib/vmware/libcurl.so.4
 %{_prefix}/lib/vmware/libgiomm-2.4.so.1
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
 %{_prefix}/lib/vmware/libssl.so.1.0.2
@@ -348,12 +354,13 @@ fi
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
 %ifarch x86_64
-%{_prefix}/lib/vmware/libcoreavc_sdk.so
 %{_prefix}/lib/vmware/libgdkmm-3.0.so.1
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
 %{_prefix}/lib/vmware/libpangomm-1.4.so.1
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
+%{_prefix}/lib/vmware/liburlFilterPlugin.so
+%{_prefix}/lib/vmware/view/bin/vmware-urlFilter
 %endif
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/settings
 %dir %{_prefix}/lib/vmware/view
@@ -427,7 +434,7 @@ fi
 
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
-%{_prefix}/lib/vmware/libx264.so.157.5
+%{_prefix}/lib/vmware/libx264.so.157.6
 
 %files scannerclient
 %config(noreplace) /etc/vmware/ftplugins.conf
@@ -446,6 +453,10 @@ fi
 %endif
 
 %changelog
+* Fri Apr 16 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2103.8.2.0.17742757-1
+- update to 2103 (8.2.0.17742757)
+- switch manual dependencies to gstreamer1 (finally!)
+
 * Wed Nov 18 2020 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2006.8.0.0.16522670-4
 - fix build on ARM 32-bit (rtav, scannerclient, serialportclient and tsdr are unavailable)
 - move vdp config to correct subpackage (pcoip)

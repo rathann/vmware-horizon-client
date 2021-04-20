@@ -12,13 +12,13 @@ cleanup() {
 
 unset CDPATH
 pwd=$(pwd)
-name=vmware-view-client-linux
-yymm=2006
-version=8.0.0
-build=16522670
-s4br_ver=11.0.0.614
-s4br_bld=16422350
-cart=CART21FQ2
+name=VMware-Horizon-Client-Linux
+yymm=2103
+version=8.2.0
+build=17742757
+s4br_ver=11.0.0.616
+s4br_bld=17704150
+cart=CART22FQ1
 # https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${yymm}-${version}-${build}.tar.gz
 pushd "$tmp"
@@ -32,7 +32,7 @@ pushd ${name}-${yymm}-${version}-${build}
 
 install -dm0755 {armv7hl,x86_64}/usr
 
-pushd ARM/armhf
+pushd armhf
 for f in \
   VMware-Horizon-Client-${yymm}-${version}-${build}.armhf.tar.gz \
   VMware-Horizon-PCoIP-${yymm}-${version}-${build}.armhf.tar.gz \
@@ -43,7 +43,7 @@ done
 popd
 pushd x64
 for f in \
-  VMware-Horizon-Client-${yymm}-${version}-${build}.x86_64.tar.gz \
+  VMware-Horizon-Client-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-PCoIP-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-USB-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-html5mmr-${yymm}-${version}-${build}.x64.tar.gz \
@@ -71,19 +71,12 @@ rm -rf \
   usr/debug \
   usr/init.d \
   usr/lib/vmware/gcc \
-  usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libffi.so.6 \
-  usr/lib/vmware/libjpeg.so.62 \
   usr/lib/vmware/libpcre.so.1 \
-  usr/lib/vmware/libpng12.so.0 \
-  usr/lib/vmware/libsigc-2.0.so.0 \
-  usr/lib/vmware/libx264.so.157.5 \
-  usr/lib/vmware/rdpvcbridge/tprdp.so \
-  usr/lib/vmware/view/crtbora \
-  usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
-  usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/lib/vmware/libpng16.so.16 \
+  usr/lib/vmware/libXss.so.1 \
+  usr/lib/vmware/libz.so.1 \
   usr/patches \
-  usr/README* \
 
 echo 'BINDIR="/usr/bin"' > etc/vmware/bootstrap
 echo 'BINDIR="/usr/bin"' > etc/vmware-vix/bootstrap
@@ -97,26 +90,36 @@ mv usr/lib{,/vmware}/libpcoip_client_neon.so
 popd
 
 pushd x86_64
-mv usr/lib{,/vmware}/libcoreavc_sdk.so
 mv {usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd,usr/bin/}
 mv usr/vmware/ftplugins.conf etc/vmware
 rm -rf usr/vmware
+chmod u+w usr/lib/vmware/view/integratedPrinting/README
+rm -rv \
+  usr/lib/vmware/libcairomm-1.0.so.1 \
+  usr/lib/vmware/libjpeg.so.62 \
+  usr/lib/vmware/libsigc-2.0.so.0 \
+  usr/lib/vmware/libx264.so.157.6 \
+  usr/lib/vmware/view/crtbora \
+  usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
+  usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/README \
+
 pushd usr/lib/vmware/view/html5mmr
 find . -type f | xargs chmod 644
 chmod 0755 \
   HTML5VideoPlayer \
-  chrome-sandbox \
+  chrome_sandbox \
   {,swiftshader/}lib*.so \
 
 popd
 install -dm0755 usr/lib/vmware/mediaprovider
-tar xzf ../SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}.tar.gz\
+tar xzf ../SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}.x64.tar.gz\
   -C usr/lib/vmware/mediaprovider\
   --strip-components=2\
-  VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}/lin64/\*.so
+  VMware-Horizon-Media-Provider-${s4br_ver}-${s4br_bld}.x64/lin64/\*.so
 
 popd
-rm -rf ARM i386 'Printer Redirection' 'SkypeForBusiness Redirection' x64
+rm -rv armhf 'SkypeForBusiness Redirection' x64
 popd
 mv ${name}-${yymm}-${version}-${build} vmware-horizon-client-${yymm}-${version}-${build}
 tar -c --use-compress-program=zstdmt \
