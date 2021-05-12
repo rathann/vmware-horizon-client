@@ -16,10 +16,10 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # Source0 is built by mktarball.sh script, see Source100 comment
-Source0: %{name}-%{fver}.tar.zstd
+Source0: %{name}-%{fver}.tar.zst
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
@@ -197,7 +197,13 @@ Requires(postun): %{_sbindir}/semodule
 USB Redirection support plugin for VMware Horizon Client.
 
 %prep
+%if 0%{?fedora}
 %setup -q -n %{name}-%{fver}
+%else
+rm -rf %{name}-%{fver}
+zstdmt -dc /builddir/build/SOURCES/%{name}-%{fver}.tar.zst | tar -xof -
+%setup -qDT -n %{name}-%{fver}
+%endif
 %patch0 -p1
 %patch1 -p1
 cp -p %{S:1} %{S:2} ./
@@ -453,6 +459,9 @@ fi
 %endif
 
 %changelog
+* Wed May 12 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2103.8.2.0.17742757-2
+- add support for building on RHEL/CentOS 8
+
 * Fri Apr 16 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2103.8.2.0.17742757-1
 - update to 2103 (8.2.0.17742757)
 - switch manual dependencies to gstreamer1 (finally!)

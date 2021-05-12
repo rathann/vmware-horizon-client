@@ -123,6 +123,6 @@ rm -rv armhf 'SkypeForBusiness Redirection' x64
 popd
 mv ${name}-${yymm}-${version}-${build} vmware-horizon-client-${yymm}-${version}-${build}
 tar -c --use-compress-program=zstdmt \
-  -f ${pwd}/vmware-horizon-client-${yymm}-${version}-${build}.tar.zstd \
+  -f ${pwd}/vmware-horizon-client-${yymm}-${version}-${build}.tar.zst \
   vmware-horizon-client-${yymm}-${version}-${build}
 popd
