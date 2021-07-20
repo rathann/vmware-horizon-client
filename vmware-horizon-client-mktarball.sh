@@ -13,12 +13,12 @@ cleanup() {
 unset CDPATH
 pwd=$(pwd)
 name=VMware-Horizon-Client-Linux
-yymm=2103
-version=8.2.0
-build=17742757
-s4br_ver=11.0.0.616
-s4br_bld=17704150
-cart=CART22FQ1
+yymm=2106
+version=8.3.0
+build=18251983
+s4br_ver=11.0.0.617
+s4br_bld=18169970
+cart=CART22FQ2
 # https://my.vmware.com/en/web/vmware/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 url=https://download3.vmware.com/software/view/viewclients/${cart}/${name}-${yymm}-${version}-${build}.tar.gz
 pushd "$tmp"
@@ -45,6 +45,7 @@ pushd x64
 for f in \
   VMware-Horizon-Client-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-PCoIP-${yymm}-${version}-${build}.x64.tar.gz \
+  VMware-Horizon-TeamsOptimization-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-USB-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-html5mmr-${yymm}-${version}-${build}.x64.tar.gz \
   VMware-Horizon-integratedPrinting-${yymm}-${version}-${build}.x64.tar.gz \
@@ -75,6 +76,8 @@ rm -rf \
   usr/lib/vmware/libpcre.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libXss.so.1 \
+  usr/lib/vmware/libv4l2.so.0 \
+  usr/lib/vmware/libv4lconvert.so.0 \
   usr/lib/vmware/libz.so.1 \
   usr/patches \
 
@@ -94,6 +97,7 @@ mv {usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd,usr/bin/}
 mv usr/vmware/ftplugins.conf etc/vmware
 rm -rf usr/vmware
 chmod u+w usr/lib/vmware/view/integratedPrinting/README
+chmod 755 usr/lib/vmware/view/vdpService/webrtcRedir/libwebrtc_sharedlib.so
 rm -rv \
   usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libjpeg.so.62 \

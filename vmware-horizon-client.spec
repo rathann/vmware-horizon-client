@@ -2,10 +2,10 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART22FQ1
-%global yymm   2103
-%global ver    8.2.0
-%global rel    17742757
+%global cart   CART22FQ2
+%global yymm   2106
+%global ver    8.3.0
+%global rel    18251983
 %global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
@@ -178,6 +178,18 @@ Requires: %{name}-pcoip = %{version}-%{release}
 %description smartcard
 SmartCard authentication support plugin for VMware Horizon Client.
 
+%package teams
+Summary: Media Optimization for Microsoft Teams support plugin for VMware Horizon Client
+Requires: %{name} = %{version}-%{release}
+
+%description teams
+The Media Optimization for Microsoft Teams redirects audio calls, video calls,
+and viewing desktop shares for a seamless experience between the client system
+and the remote session without negatively affecting the virtual infrastructure
+and overloading the network. Microsoft Teams media processing takes place on the
+client machine instead of in the virtual desktop and does not rely on Real-Time
+Audio-Video (RTAV).
+
 %package tsdr
 Summary: Client Drive Redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
@@ -212,8 +224,8 @@ find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
 pushd %{_target_cpu}
 %ifarch x86_64
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
-ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.6
 %endif
+ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.6
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
 pushd usr/lib/vmware/view
@@ -404,6 +416,10 @@ fi
 %{_prefix}/lib/vmware/view/vdpau
 %{_prefix}/lib/vmware/xkeymap
 
+%files rtav
+%{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
+%{_prefix}/lib/vmware/libx264.so.157.6
+
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
 %dir %{_prefix}/lib/vmware/view/pkcs11
@@ -438,10 +454,6 @@ fi
 %files mmr
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
 
-%files rtav
-%{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
-%{_prefix}/lib/vmware/libx264.so.157.6
-
 %files scannerclient
 %config(noreplace) /etc/vmware/ftplugins.conf
 %{_prefix}/lib/vmware/view/bin/ftscanhvd
@@ -454,11 +466,19 @@ fi
 %{_presetdir}/96-vmware-ftsprhvd.preset
 %{_unitdir}/vmware-ftsprhvd.service
 
+%files teams
+%{_prefix}/lib/vmware/view/vdpService/webrtcRedir
+
 %files tsdr
 %{_prefix}/lib/vmware/view/vdpService/libtsdrClient.so
 %endif
 
 %changelog
+* Tue Jul 20 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2106.8.3.0.18251983-1
+- update to 2106 (8.3.0-18251983)
+- include Media Optimization for Microsoft Teams plugin
+- rtav is available on ARM
+
 * Wed May 12 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2103.8.2.0.17742757-2
 - add support for building on RHEL/CentOS 8
 
