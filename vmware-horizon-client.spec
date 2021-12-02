@@ -2,25 +2,29 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART22FQ2
-%global yymm   2106
-%global ver    8.3.0
-%global rel    18251983
+%global cart   CART22FH2
+%global yymm   2111
+%global ver    8.4.0
+%global rel    18957622
 %global fver   %{yymm}-%{ver}-%{rel}
+%global s4br_ver 12.0.0.0
+%global s4br_bld 18938857
 %ifarch x86_64
 %global mark64 ()(64bit)
+%global vhc_arch x64
 %else
 %global mark64 %nil
+%global vhc_arch armhf
 %endif
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2%{?dist}
+Release: 1%{?dist}
 URL: https://www.vmware.com/products/horizon.html
-# Source0 is built by mktarball.sh script, see Source100 comment
-Source0: %{name}-%{fver}.tar.zst
-Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/horizon-client-linux-%{yymm}-release-notes.html
+# https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
+Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
+Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/vmware-horizon-client-for-linux-%{yymm}-release-notes/vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
@@ -29,9 +33,6 @@ Source13: vmware-ftscanhvd.service
 Source14: vmware-usbarbitrator.preset
 Source15: vmware-ftsprhvd.preset
 Source16: vmware-ftscanhvd.preset
-# upstream tarball is 0.5GB in size and contains binaries for all arches
-# therefore run mktarball.sh before rpmbuild and provide the generated .tar.zstd  as Source0
-Source100: vmware-horizon-client-mktarball.sh
 Patch0: %{name}-desktop.patch
 Patch1: %{name}-fedora.patch
 License: VMware
@@ -43,7 +44,6 @@ BuildRequires: x264-libs%{_isa}
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
-BuildRequires: zstd
 Provides: bundled(atk) = 2.28.1
 Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
@@ -209,22 +209,108 @@ Requires(postun): %{_sbindir}/semodule
 USB Redirection support plugin for VMware Horizon Client.
 
 %prep
-%if 0%{?fedora}
-%setup -q -n %{name}-%{fver}
-%else
-rm -rf %{name}-%{fver}
-zstdmt -dc /builddir/build/SOURCES/%{name}-%{fver}.tar.zst | tar -xof -
-%setup -qDT -n %{name}-%{fver}
-%endif
-%patch0 -p1
-%patch1 -p1
+%setup -q -n VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}
 cp -p %{S:1} %{S:2} ./
-find  . -type f | xargs file | grep ELF | cut -d: -f1 | xargs -l execstack -q |\
-  grep ^X | cut -d' ' -f2 | xargs -l execstack -c
-pushd %{_target_cpu}
+
+%build
+
+%install
+install -dm0755 %{buildroot}/etc/teradici
+install -dm0755 %{buildroot}/etc/vmware{/udpProxy,/vdp/host_overlay_plugins,-vix}
+install -dm0755 %{buildroot}%{_presetdir}
+install -dm0755 %{buildroot}%{_unitdir}
+install -dm0755 %{buildroot}/usr/lib/vmware/view/pkcs11
+install -dm0755 %{buildroot}%{_datadir}/doc
+install -dm0755 %{buildroot}/var/log/vmware
+
+pushd %{vhc_arch}
+for f in \
+  VMware-Horizon-Client-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %ifarch x86_64
+  VMware-Horizon-TeamsOptimization-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+%endif
+; do
+  tar xzf ${f} -C %{buildroot}/usr --strip-components=1
+done
+popd
+
+%ifarch x86_64
+install -dm0755 %{buildroot}/usr/lib/vmware/mediaprovider
+tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-%{s4br_ver}-%{s4br_bld}.%{vhc_arch}.tar.gz\
+  -C %{buildroot}/usr/lib/vmware/mediaprovider\
+  --strip-components=2\
+  VMware-Horizon-Media-Provider-%{s4br_ver}-%{s4br_bld}.%{vhc_arch}/lin64/\*.so
+%endif
+
+pushd %{buildroot}
+
+mv -v usr/{doc,share/doc/%{name}}
+mv -v usr/lib{,/vmware}/libpcoip_client.so
+%ifarch armv7hl
+mv -v usr/lib{,/vmware}/libpcoip_client_neon.so
+%endif
+%ifarch x86_64
+mv -v usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd ./%{_bindir}
+mv -v usr/vmware/ftplugins.conf etc/vmware
+
+pushd usr/lib/vmware/view/html5mmr
+find . -type f | xargs chmod 644
+chmod 0755 \
+  HTML5VideoPlayer \
+  chrome_sandbox \
+  {,swiftshader/}lib*.so \
+
+popd
+
+chmod 0755 usr/lib/vmware/view/vdpService/webrtcRedir/libwebrtc_sharedlib.so
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
+
+rm -frv \
+  usr/init.d \
+  usr/lib/vmware/gcc \
+  usr/lib/vmware/libcairomm-1.0.so.1 \
+  usr/lib/vmware/libffi.so.6 \
+  usr/lib/vmware/libpcre.so.1 \
+  usr/lib/vmware/libpng16.so.16 \
+  usr/lib/vmware/libsigc-2.0.so.0 \
+  usr/lib/vmware/libv4l2.so.0 \
+  usr/lib/vmware/libv4lconvert.so.0 \
+  usr/lib/vmware/libx264.so.157.6 \
+  usr/lib/vmware/libXss.so.1 \
+  usr/lib/vmware/libz.so.1 \
+  usr/lib/vmware/view/crtbora \
+  usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
+  usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/patches \
+  usr/README* \
+  usr/vmware \
+
+echo 'BINDIR="%{_bindir}"' > etc/vmware/bootstrap
+echo 'BINDIR="%{_bindir}"' > etc/vmware-vix/bootstrap
+echo "/usr/lib/pcoip/vchan_plugins/libvdpservice.so" > etc/vmware/vdp/host_overlay_plugins/config
+
+patch -p1 ./%{_datadir}/applications/vmware-view.desktop %{PATCH0}
+patch -p1 usr/lib/vmware/view/env/env_utils.sh %{PATCH1}
+
+desktop-file-validate ./%{_datadir}/applications/vmware-view.desktop
+
+install -pm0644 %{S:10} etc/vmware
+install -pm0644 %{S:11} ./%{_unitdir}
+%ifarch x86_64
+install -pm0644 %{S:13} ./%{_unitdir}
+install -pm0644 %{S:12} ./%{_unitdir}
+install -pm0644 %{S:15} ./%{_presetdir}/96-vmware-ftsprhvd.preset
+install -pm0644 %{S:16} ./%{_presetdir}/96-vmware-ftscanhvd.preset
+%endif
+install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-usbarbitrator.preset
+
 ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.6
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
@@ -235,28 +321,8 @@ for v in software vaapi2 vdpau ; do
   ln -s ../../../../lib64/libavutil.so.56 ${v}/
 done
 popd
+
 popd
-
-%build
-
-%install
-install -dm0755 %{buildroot}{%{_presetdir},%{_unitdir}}
-
-pushd %{_target_cpu}
-cp -pr etc usr var %{buildroot}/
-popd
-
-desktop-file-validate %{buildroot}%{_datadir}/applications/vmware-view.desktop
-
-install -pm0644 %{S:10} %{buildroot}%{_sysconfdir}/vmware
-install -pm0644 %{S:11} %{buildroot}%{_unitdir}
-%ifarch x86_64
-install -pm0644 %{S:13} %{buildroot}%{_unitdir}
-install -pm0644 %{S:12} %{buildroot}%{_unitdir}
-install -pm0644 %{S:15} %{buildroot}%{_presetdir}/96-vmware-ftsprhvd.preset
-install -pm0644 %{S:16} %{buildroot}%{_presetdir}/96-vmware-ftscanhvd.preset
-%endif
-install -pm0644 %{S:14} %{buildroot}%{_presetdir}/96-vmware-usbarbitrator.preset
 
 %find_lang vmware-view
 
@@ -339,7 +405,7 @@ fi
 %license %lang(ko) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ko.txt
 %license %lang(zh_CN) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_CN.txt
 %license %lang(zh_TW) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_TW.txt
-%doc horizon-client-linux-%{yymm}-release-notes.html
+%doc vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
 %config %{_sysconfdir}/vmware/bootstrap
@@ -474,6 +540,10 @@ fi
 %endif
 
 %changelog
+* Thu Dec 02 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2111.8.4.0.18957622-1
+- update to 2111 (8.4.0.18957622)
+- use upstream tarball directly, it was trimmed to 315M
+
 * Tue Jul 20 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2106.8.3.0.18251983-1
 - update to 2106 (8.3.0-18251983)
 - include Media Optimization for Microsoft Teams plugin

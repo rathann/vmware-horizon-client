@@ -3,7 +3,7 @@ VMware Horizon Client for Linux RPM package for Fedora
 
 by Dominik Mierzejewski
 
-Last-Updated: Thu 14 Jan 2021
+Last-Updated: Thu 02 Dec 2021
 
 Disclaimer
 ----------
@@ -19,7 +19,7 @@ Building
 $ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
 $ fedpkg srpm
-$ mock -r fedora-34-x86_64-rpmfusion_free vmware-horizon-client-2103.8.2.0.17742757-1.fc34.src.rpm
+$ mock -r fedora-35-x86_64-rpmfusion_free vmware-horizon-client-2111.8.4.0.18957622-1.fc35.src.rpm
 ```
 
 Dependencies
