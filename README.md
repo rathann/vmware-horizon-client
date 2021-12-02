@@ -30,7 +30,6 @@ instead:
 * libavcodec
 * libavutil
 * libffi
-* libjpeg
 * libpcre
 * libpng
 * libsigc++
@@ -53,6 +52,7 @@ Known issues
 Untested features:
 * HTML5 Multimedia Redirection
 * Integrated Printing
+* Media Optimization for Microsoft Teams
 * Scanner Redirection
 * Serial Port Redirection
 * Smartcard support
