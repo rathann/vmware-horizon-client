@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -38,9 +38,9 @@ Patch1: %{name}-fedora.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
 %ifarch x86_64
-BuildRequires: chrpath
 BuildRequires: x264-libs%{_isa}
 %endif
+BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
@@ -254,6 +254,8 @@ mv -v usr/{doc,share/doc/%{name}}
 mv -v usr/lib{,/vmware}/libpcoip_client.so
 %ifarch armv7hl
 mv -v usr/lib{,/vmware}/libpcoip_client_neon.so
+chmod 755 usr/lib/vmware/libcurl.so.4
+chrpath -d usr/lib/vmware/libcurl.so.4
 %endif
 %ifarch x86_64
 mv -v usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd ./%{_bindir}
@@ -416,7 +418,6 @@ fi
 %dir %{_sysconfdir}/vmware/vdp
 %dir %{_sysconfdir}/vmware-vix
 %config %{_sysconfdir}/vmware-vix/bootstrap
-%{_bindir}/vmware-url-filter
 %{_bindir}/vmware-view
 %{_bindir}/vmware-view-lib-scan
 %{_bindir}/vmware-view-log-collector
@@ -431,21 +432,22 @@ fi
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libcurl.so.4
+%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
 %{_prefix}/lib/vmware/libgiomm-2.4.so.1
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
+%{_prefix}/lib/vmware/libgtkmm-3.0.so.1
+%{_prefix}/lib/vmware/libpangomm-1.4.so.1
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
 %ifarch x86_64
-%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
-%{_prefix}/lib/vmware/libgtkmm-3.0.so.1
-%{_prefix}/lib/vmware/libpangomm-1.4.so.1
-%dir %{_prefix}/lib/vmware/rdpvcbridge
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
 %{_prefix}/lib/vmware/liburlFilterPlugin.so
 %{_prefix}/lib/vmware/view/bin/vmware-urlFilter
+%{_bindir}/vmware-url-filter
 %endif
+%dir %{_prefix}/lib/vmware/rdpvcbridge
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/settings
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
@@ -465,11 +467,9 @@ fi
 %config(noreplace) %{_sysconfdir}/vmware/vdp/host_overlay_plugins/config
 %dir %{_prefix}/lib/pcoip
 %dir %{_prefix}/lib/pcoip/vchan_plugins
-%ifarch x86_64
+%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
 %{_prefix}/lib/pcoip/vchan_plugins/librdpvcbridge.so
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
-%endif
-%{_prefix}/lib/pcoip/vchan_plugins/libvdpservice.so
 %{_prefix}/lib/vmware/libpcoip_client.so
 %ifarch armv7hl
 %{_prefix}/lib/vmware/libpcoip_client_neon.so
@@ -540,6 +540,9 @@ fi
 %endif
 
 %changelog
+* Fri Dec 03 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2111.8.4.0.18957622-2
+- fix build on ARM: RDP is available, but URL redirection isn't
+
 * Thu Dec 02 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2111.8.4.0.18957622-1
 - update to 2111 (8.4.0.18957622)
 - use upstream tarball directly, it was trimmed to 315M
