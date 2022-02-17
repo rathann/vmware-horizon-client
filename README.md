@@ -18,8 +18,9 @@ Building
 ```
 $ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
-$ fedpkg srpm
-$ mock -r fedora-35-x86_64-rpmfusion_free vmware-horizon-client-2111.8.4.0.18957622-1.fc35.src.rpm
+$ spectool -g vmware-horizon-client.spec
+$ fedpkg --release f35 srpm
+$ mock -r fedora-35-x86_64-rpmfusion_free vmware-horizon-client-2111.8.4.0.18957622-2.fc35.src.rpm
 ```
 
 Dependencies
