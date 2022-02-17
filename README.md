@@ -3,7 +3,7 @@ VMware Horizon Client for Linux RPM package for Fedora
 
 by Dominik Mierzejewski
 
-Last-Updated: Thu 02 Dec 2021
+Last-Updated: Thu 17 Feb 2022
 
 Disclaimer
 ----------
