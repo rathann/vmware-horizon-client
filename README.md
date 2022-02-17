@@ -16,6 +16,8 @@ obtaining permission from VMware to distribute binaries is welcome.
 Building
 --------
 ```
+$ sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+$ sudo dnf install mock-rpmfusion-free
 $ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
 $ spectool -g vmware-horizon-client.spec
