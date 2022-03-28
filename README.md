@@ -3,7 +3,7 @@ VMware Horizon Client for Linux RPM package for Fedora
 
 by Dominik Mierzejewski
 
-Last-Updated: Thu 17 Feb 2022
+Last-Updated: Mon 28 Mar 2022
 
 Disclaimer
 ----------
@@ -16,13 +16,11 @@ obtaining permission from VMware to distribute binaries is welcome.
 Building
 --------
 ```
-$ sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-$ sudo dnf install mock-rpmfusion-free
 $ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
 $ spectool -g vmware-horizon-client.spec
 $ fedpkg --release f35 srpm
-$ mock -r fedora-35-x86_64-rpmfusion_free vmware-horizon-client-2111.8.4.0.18957622-2.fc35.src.rpm
+$ mock -r fedora-35-x86_64 vmware-horizon-client-2111.8.4.0.18957622-3.src.rpm
 ```
 
 Dependencies
@@ -36,19 +34,11 @@ instead:
 * libpcre
 * libpng
 * libsigc++
-* libx264
 * libXss
 * zlib
 
 Further unbundling will be possible once VMware builds their binaries with
 glibmm >= 2.46. See https://gitlab.gnome.org/GNOME/glibmm/-/issues/32 .
-
-As a result, the PCoIP support package depends on FFmpeg from RPM Fusion Free
-repository and the Real-Time Audio Video support package depends on x264 from
-the same repository.
-
-See https://rpmfusion.org/Configuration for information on how to configure RPM
-Fusion repositories on your machine.
 
 Known issues
 ------------

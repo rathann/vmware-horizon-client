@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2%{?dist}
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -37,9 +37,6 @@ Patch0: %{name}-desktop.patch
 Patch1: %{name}-fedora.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
-%ifarch x86_64
-BuildRequires: x264-libs%{_isa}
-%endif
 BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
@@ -138,7 +135,9 @@ Requires: %{name}-pcoip = %{version}-%{release}
 Requires: libspeex.so.1%{mark64}
 Requires: libtheoradec.so.1%{mark64}
 Requires: libtheoraenc.so.1%{mark64}
-Requires: x264-libs%{_isa}
+%ifarch x86_64
+Provides: bundled(x264-libs) = 0.157
+%endif
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
@@ -284,7 +283,6 @@ rm -frv \
   usr/lib/vmware/libsigc-2.0.so.0 \
   usr/lib/vmware/libv4l2.so.0 \
   usr/lib/vmware/libv4lconvert.so.0 \
-  usr/lib/vmware/libx264.so.157.6 \
   usr/lib/vmware/libXss.so.1 \
   usr/lib/vmware/libz.so.1 \
   usr/lib/vmware/view/crtbora \
@@ -313,7 +311,6 @@ install -pm0644 %{S:16} ./%{_presetdir}/96-vmware-ftscanhvd.preset
 %endif
 install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-usbarbitrator.preset
 
-ln -s ../..$(ls -1 /%{_lib}/libx264.so.*) usr/lib/vmware/libx264.so.157.6
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
 pushd usr/lib/vmware/view
@@ -484,7 +481,9 @@ fi
 
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
+%ifarch x86_64
 %{_prefix}/lib/vmware/libx264.so.157.6
+%endif
 
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
@@ -540,6 +539,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 21 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2111.8.4.0.18957622-3
+- stop unbundling libx264, ABI 157 is strictly required
+
 * Fri Dec 03 2021 Dominik 'Rathann' Mierzejewski <rpm@greysector.net> 2111.8.4.0.18957622-2
 - fix build on ARM: RDP is available, but URL redirection isn't
 
