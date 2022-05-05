@@ -2,13 +2,13 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART22FH2
-%global yymm   2111
-%global ver    8.4.0
-%global rel    18957622
+%global cart   CART23FQ1_LIN_2203_TARBALL
+%global yymm   2203
+%global ver    8.5.0
+%global rel    19586897
 %global fver   %{yymm}-%{ver}-%{rel}
-%global s4br_ver 12.0.0.0
-%global s4br_bld 18938857
+%global s4br_ver 13.0.0.0
+%global s4br_bld 19505106
 %ifarch x86_64
 %global mark64 ()(64bit)
 %global vhc_arch x64
@@ -20,10 +20,10 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 3
+Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
-Source0: https://download3.vmware.com/software/view/viewclients/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
+Source0: https://download3.vmware.com/software/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/vmware-horizon-client-for-linux-%{yymm}-release-notes/vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
@@ -416,6 +416,7 @@ fi
 %dir %{_sysconfdir}/vmware-vix
 %config %{_sysconfdir}/vmware-vix/bootstrap
 %{_bindir}/vmware-view
+%{_bindir}/vmware-view-legacy
 %{_bindir}/vmware-view-lib-scan
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
@@ -449,6 +450,7 @@ fi
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
+%{_prefix}/lib/vmware/view/bin/vmware-view-legacy
 %dir %{_prefix}/lib/vmware/view/vdpService
 %{_datadir}/applications/vmware-view.desktop
 %{_datadir}/icons/vmware-view.png
@@ -539,6 +541,9 @@ fi
 %endif
 
 %changelog
+* Thu May 05 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2203.8.5.0.19586897-1
+- update to 2203 (8.5.0.19586897)
+
 * Mon Mar 21 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2111.8.4.0.18957622-3
 - stop unbundling libx264, ABI 157 is strictly required
 
