@@ -2,13 +2,13 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   CART23FQ1_LIN_2203_TARBALL
-%global yymm   2203
-%global ver    8.5.0
-%global rel    19586897
+%global cart   23FQ2
+%global yymm   2206
+%global ver    8.6.0
+%global rel    20094634
 %global fver   %{yymm}-%{ver}-%{rel}
-%global s4br_ver 13.0.0.0
-%global s4br_bld 19505106
+%global s4br_ver 14.0.0.0
+%global s4br_bld 20040068
 %ifarch x86_64
 %global mark64 ()(64bit)
 %global vhc_arch x64
@@ -23,7 +23,7 @@ Version: %{yymm}.%{ver}.%{rel}
 Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
-Source0: https://download3.vmware.com/software/%{cart}/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
+Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/vmware-horizon-client-for-linux-%{yymm}-release-notes/vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
@@ -66,7 +66,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -250,6 +250,7 @@ tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-%{s4br_ver}-
 pushd %{buildroot}
 
 mv -v usr/{doc,share/doc/%{name}}
+mv -v usr/lib/vmware{/view/lib,}/libclientSdkCPrimitive.so
 mv -v usr/lib{,/vmware}/libpcoip_client.so
 %ifarch armv7hl
 mv -v usr/lib{,/vmware}/libpcoip_client_neon.so
@@ -278,6 +279,7 @@ rm -frv \
   usr/lib/vmware/gcc \
   usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libffi.so.6 \
+  usr/lib/vmware/librtavCliLib.so \
   usr/lib/vmware/libpcre.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libsigc-2.0.so.0 \
@@ -286,6 +288,7 @@ rm -frv \
   usr/lib/vmware/libXss.so.1 \
   usr/lib/vmware/libz.so.1 \
   usr/lib/vmware/view/crtbora \
+  usr/lib/vmware/view/html5mmr/libhtml5Client.so \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
   usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
   usr/patches \
@@ -427,6 +430,7 @@ fi
 %{_prefix}/lib/vmware/view/env/env_utils.sh
 %{_prefix}/lib/vmware/view/env/vmware-view.info
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
+%{_prefix}/lib/vmware/libclientSdkCPrimitive.so
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libcurl.so.4
@@ -541,6 +545,11 @@ fi
 %endif
 
 %changelog
+* Mon Aug 08 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-1
+- update to 2206 (8.6.0.20094634)
+- drop unused librtavCliLib.so library
+- drop duplicate libhtml5Client.so library
+
 * Thu May 05 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2203.8.5.0.19586897-1
 - update to 2203 (8.5.0.19586897)
 
