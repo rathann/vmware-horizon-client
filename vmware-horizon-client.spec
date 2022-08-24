@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1
+Release: 2
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -279,7 +279,6 @@ rm -frv \
   usr/lib/vmware/gcc \
   usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libffi.so.6 \
-  usr/lib/vmware/librtavCliLib.so \
   usr/lib/vmware/libpcre.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libsigc-2.0.so.0 \
@@ -439,6 +438,7 @@ fi
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
 %{_prefix}/lib/vmware/libpangomm-1.4.so.1
+%{_prefix}/lib/vmware/librtavCliLib.so
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
@@ -545,6 +545,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug 24 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-2
+- put back librtavCliLib.so, it's used by vmware-view via libclientSdkCPrimitive.so
+
 * Mon Aug 08 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-1
 - update to 2206 (8.6.0.20094634)
 - drop unused librtavCliLib.so library
