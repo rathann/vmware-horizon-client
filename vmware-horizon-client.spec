@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -107,7 +107,7 @@ Virtualization Pack for Skype for Business.
 %package mmr
 Summary: Multimedia Redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Requires: gstreamer1-libav%{_isa}
+Requires: libgstlibav.so%{mark64}
 Recommends: gstreamer1-vaapi%{_isa}
 
 %description mmr
@@ -545,6 +545,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 09 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-3
+- update gstreamer1 libav plugin dependency to work with both Fedora and RPM Fusion builds
+
 * Wed Aug 24 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-2
 - put back librtavCliLib.so, it's used by vmware-view via libclientSdkCPrimitive.so
 
