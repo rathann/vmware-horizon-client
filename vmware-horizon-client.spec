@@ -2,13 +2,13 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   23FQ2
-%global yymm   2206
-%global ver    8.6.0
-%global rel    20094634
+%global cart   23FQ3
+%global yymm   2209
+%global ver    8.7.0
+%global rel    20616018
 %global fver   %{yymm}-%{ver}-%{rel}
-%global s4br_ver 14.0.0.0
-%global s4br_bld 20040068
+%global s4br_ver 15.0.0.0
+%global s4br_bld 20450170
 %ifarch x86_64
 %global mark64 ()(64bit)
 %global vhc_arch x64
@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 3
+Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -28,13 +28,12 @@ Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/v
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
-Source12: vmware-ftsprhvd.service
-Source13: vmware-ftscanhvd.service
 Source14: vmware-usbarbitrator.preset
-Source15: vmware-ftsprhvd.preset
-Source16: vmware-ftscanhvd.preset
+Source15: vmware-ftsprhv.preset
+Source16: vmware-ftscanhv.preset
 Patch0: %{name}-desktop.patch
 Patch1: %{name}-fedora.patch
+Patch2: %{name}-systemd.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
 BuildRequires: chrpath
@@ -228,7 +227,6 @@ for f in \
   VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %ifarch x86_64
-  VMware-Horizon-TeamsOptimization-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
@@ -266,7 +264,7 @@ find . -type f | xargs chmod 644
 chmod 0755 \
   HTML5VideoPlayer \
   chrome_sandbox \
-  {,swiftshader/}lib*.so \
+  lib*.so \
 
 popd
 
@@ -288,6 +286,7 @@ rm -frv \
   usr/lib/vmware/libz.so.1 \
   usr/lib/vmware/view/crtbora \
   usr/lib/vmware/view/html5mmr/libhtml5Client.so \
+  usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
   usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
   usr/patches \
@@ -306,10 +305,11 @@ desktop-file-validate ./%{_datadir}/applications/vmware-view.desktop
 install -pm0644 %{S:10} etc/vmware
 install -pm0644 %{S:11} ./%{_unitdir}
 %ifarch x86_64
-install -pm0644 %{S:13} ./%{_unitdir}
-install -pm0644 %{S:12} ./%{_unitdir}
-install -pm0644 %{S:15} ./%{_presetdir}/96-vmware-ftsprhvd.preset
-install -pm0644 %{S:16} ./%{_presetdir}/96-vmware-ftscanhvd.preset
+patch -p1 usr/systemd/system/ftscanhv.service %{PATCH2}
+mv usr/systemd/system/ftsprhv.service ./%{_unitdir}/
+mv usr/systemd/system/ftscanhv.service ./%{_unitdir}/
+install -pm0644 %{S:15} ./%{_presetdir}/96-ftsprhv.preset
+install -pm0644 %{S:16} ./%{_presetdir}/96-ftscanhv.preset
 %endif
 install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-usbarbitrator.preset
 
@@ -347,27 +347,27 @@ __EOF__
 %{_sbindir}/semodule -i $TMPDIR/%{name}-scannerclient-rpm.cil
 rm $TMPDIR/%{name}-scannerclient-rpm.cil
 rmdir $TMPDIR
-%systemd_post vmware-ftscanhvd.service
+%systemd_post ftscanhv.service
 exit 0
 
 %preun scannerclient
-%systemd_preun vmware-ftscanhvd.service
+%systemd_preun ftscanhv.service
 
 %postun scannerclient
-%systemd_postun_with_restart vmware-ftscanhvd.service
+%systemd_postun_with_restart ftscanhv.service
 if [ $1 -eq 0 ]; then
   %{_sbindir}/semodule -r %{name}-scannerclient-rpm || :
 fi
 
 %post serialportclient
-%systemd_post vmware-ftsprhvd.service
+%systemd_post ftsprhv.service
 exit 0
 
 %preun serialportclient
-%systemd_preun vmware-ftsprhvd.service
+%systemd_preun ftsprhvd.service
 
 %postun serialportclient
-%systemd_postun_with_restart vmware-ftsprhvd.service
+%systemd_postun_with_restart ftsprhv.service
 
 %post usb
 TMPDIR=$(%{_bindir}/mktemp -d)
@@ -398,14 +398,6 @@ fi
 
 %files -f vmware-view.lang
 %license %{_docdir}/%{name}/open_source_licenses.txt
-%license %lang(de) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-de.txt
-%license %{_docdir}/%{name}/VMware-Horizon-Client-EULA-en.txt
-%license %lang(es) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-es.txt
-%license %lang(fr) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-fr.txt
-%license %lang(ja) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ja.txt
-%license %lang(ko) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-ko.txt
-%license %lang(zh_CN) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_CN.txt
-%license %lang(zh_TW) %{_docdir}/%{name}/VMware-Horizon-Client-EULA-zh_TW.txt
 %doc vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 %doc horizon-client-linux-installation.pdf
 %dir %{_sysconfdir}/vmware
@@ -418,7 +410,6 @@ fi
 %dir %{_sysconfdir}/vmware-vix
 %config %{_sysconfdir}/vmware-vix/bootstrap
 %{_bindir}/vmware-view
-%{_bindir}/vmware-view-legacy
 %{_bindir}/vmware-view-lib-scan
 %{_bindir}/vmware-view-log-collector
 %{_bindir}/vmware-view-usbdloader
@@ -454,7 +445,6 @@ fi
 %dir %{_prefix}/lib/vmware/view
 %dir %{_prefix}/lib/vmware/view/bin
 %{_prefix}/lib/vmware/view/bin/vmware-view
-%{_prefix}/lib/vmware/view/bin/vmware-view-legacy
 %dir %{_prefix}/lib/vmware/view/vdpService
 %{_datadir}/applications/vmware-view.desktop
 %{_datadir}/icons/vmware-view.png
@@ -528,14 +518,14 @@ fi
 %files scannerclient
 %config(noreplace) /etc/vmware/ftplugins.conf
 %{_prefix}/lib/vmware/view/bin/ftscanhvd
-%{_presetdir}/96-vmware-ftscanhvd.preset
-%{_unitdir}/vmware-ftscanhvd.service
+%{_presetdir}/96-ftscanhv.preset
+%{_unitdir}/ftscanhv.service
 
 %files serialportclient
 %attr(0644,root,root) %config(noreplace) %ghost %{_sysconfdir}/ftsprhv.db
 %{_prefix}/lib/vmware/view/bin/ftsprhvd
-%{_presetdir}/96-vmware-ftsprhvd.preset
-%{_unitdir}/vmware-ftsprhvd.service
+%{_presetdir}/96-ftsprhv.preset
+%{_unitdir}/ftsprhv.service
 
 %files teams
 %{_prefix}/lib/vmware/view/vdpService/webrtcRedir
@@ -545,6 +535,10 @@ fi
 %endif
 
 %changelog
+* Thu Nov 03 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2209.8.7.0.20616018-1
+- update to 2209 (8.7.0.20616018)
+- use upstream systemd service files
+
 * Fri Sep 09 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2206.8.6.0.20094634-3
 - update gstreamer1 libav plugin dependency to work with both Fedora and RPM Fusion builds
 
