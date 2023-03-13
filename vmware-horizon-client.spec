@@ -2,13 +2,13 @@
 %undefine _debugsource_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   23FQ3
-%global yymm   2209
-%global ver    8.7.0
-%global rel    20616018
+%global cart   23FQ4
+%global yymm   2212
+%global ver    8.8.0
+%global rel    21079016
 %global fver   %{yymm}-%{ver}-%{rel}
-%global s4br_ver 15.0.0.0
-%global s4br_bld 20450170
+%global s4br_ver 16.0.0.0
+%global s4br_bld 20864211
 %ifarch x86_64
 %global mark64 ()(64bit)
 %global vhc_arch x64
@@ -535,6 +535,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 13 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2212.8.8.0.21079016-1
+- update to 2212 (8.8.0.21079016)
+
 * Thu Nov 03 2022 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2209.8.7.0.20616018-1
 - update to 2209 (8.7.0.20616018)
 - use upstream systemd service files
