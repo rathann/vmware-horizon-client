@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1
+Release: 2.el9
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -65,7 +65,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|avutil\\.so\\.56\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|x264\\.so\\.157\\.6\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -116,9 +116,8 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
-Requires: libavcodec.so.58%{mark64}
-Requires: libavutil.so.56%{mark64}
 Requires: %{name} = %{version}-%{release}
+Provides: bundled(ffmpeg-libs) = 4.4.1
 Provides: bundled(libpng) = 1.6.37
 Provides: bundled(pcoip-soft-clients) = 3.75
 Provides: bundled(openssl) = 1.0.2w
@@ -288,7 +287,7 @@ rm -frv \
   usr/lib/vmware/view/html5mmr/libhtml5Client.so \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
-  usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/lib/vmware/view/vaapi \
   usr/patches \
   usr/README* \
   usr/vmware \
@@ -315,13 +314,6 @@ install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-usbarbitrator.preset
 
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
-pushd usr/lib/vmware/view
-for v in software vaapi2 vdpau ; do
-  mkdir ${v}
-  ln -s ../../../../lib64/libavcodec.so.58 ${v}/
-  ln -s ../../../../lib64/libavutil.so.56 ${v}/
-done
-popd
 
 popd
 
@@ -535,6 +527,9 @@ fi
 %endif
 
 %changelog
+* Fri Mar 17 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2212.8.8.0.21079016-2
+- stop unbundling ffmpeg 4.x (not available on EPEL9)
+
 * Mon Mar 13 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2212.8.8.0.21079016-1
 - update to 2212 (8.8.0.21079016)
 
