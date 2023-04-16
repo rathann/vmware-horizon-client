@@ -1,14 +1,12 @@
 %undefine _missing_build_ids_terminate_build
-%undefine _debugsource_packages
+%undefine _enable_debug_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   23FQ4
-%global yymm   2212
-%global ver    8.8.0
-%global rel    21079016
+%global cart   24FQ1
+%global yymm   2303
+%global ver    8.9.0
+%global rel    21435420
 %global fver   %{yymm}-%{ver}-%{rel}
-%global s4br_ver 16.0.0.0
-%global s4br_bld 20864211
 %ifarch x86_64
 %global mark64 ()(64bit)
 %global vhc_arch x64
@@ -32,7 +30,6 @@ Source14: vmware-usbarbitrator.preset
 Source15: vmware-ftsprhv.preset
 Source16: vmware-ftscanhv.preset
 Patch0: %{name}-desktop.patch
-Patch1: %{name}-fedora.patch
 Patch2: %{name}-systemd.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
@@ -60,6 +57,7 @@ Provides: bundled(pangomm) = 2.34.0
 Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.11
 Provides: %{name}-seamless-window = %{version}-%{release}
+Obsoletes: %{name}-media-provider < 2303.8.9.0.21435420
 Obsoletes: %{name}-seamless-window < 5.2.0.14604769
 Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
@@ -89,19 +87,6 @@ Requires: %{name} = %{version}-%{release}
 
 %description integrated-printing
 Integrated Printing support plugin for VMware Horizon Client.
-
-%package media-provider
-Summary: Virtualization Pack for Skype for Business
-Requires: %{name} = %{version}-%{release}
-Provides: bundled(hidapi) = 0.8.9
-Provides: bundled(json-c) = 0.12.1
-Provides: bundled(libjpeg-turbo) = 2.0.5
-Provides: bundled(libsrtp) = 2.2.0
-Provides: bundled(openssl) = 1.0.2y
-Provides: bundled(webrtc) = 90
-
-%description media-provider
-Virtualization Pack for Skype for Business.
 
 %package mmr
 Summary: Multimedia Redirection support plugin for VMware Horizon Client
@@ -135,7 +120,7 @@ Requires: libspeex.so.1%{mark64}
 Requires: libtheoradec.so.1%{mark64}
 Requires: libtheoraenc.so.1%{mark64}
 %ifarch x86_64
-Provides: bundled(x264-libs) = 0.157
+Provides: bundled(x264-libs) = 0.164
 %endif
 
 %description rtav
@@ -172,6 +157,7 @@ Requires Horizon Agent 7.6 or later on the virtual desktop.
 %package smartcard
 Summary: SmartCard authentication support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
+Requires: opensc%{_isa}
 
 %description smartcard
 SmartCard authentication support plugin for VMware Horizon Client.
@@ -237,14 +223,6 @@ for f in \
 done
 popd
 
-%ifarch x86_64
-install -dm0755 %{buildroot}/usr/lib/vmware/mediaprovider
-tar xzf SkypeForBusiness\ Redirection/VMware-Horizon-Media-Provider-%{s4br_ver}-%{s4br_bld}.%{vhc_arch}.tar.gz\
-  -C %{buildroot}/usr/lib/vmware/mediaprovider\
-  --strip-components=2\
-  VMware-Horizon-Media-Provider-%{s4br_ver}-%{s4br_bld}.%{vhc_arch}/lin64/\*.so
-%endif
-
 pushd %{buildroot}
 
 mv -v usr/{doc,share/doc/%{name}}
@@ -252,7 +230,6 @@ mv -v usr/lib/vmware{/view/lib,}/libclientSdkCPrimitive.so
 mv -v usr/lib{,/vmware}/libpcoip_client.so
 %ifarch armv7hl
 mv -v usr/lib{,/vmware}/libpcoip_client_neon.so
-chmod 755 usr/lib/vmware/libcurl.so.4
 chrpath -d usr/lib/vmware/libcurl.so.4
 %endif
 %ifarch x86_64
@@ -261,14 +238,8 @@ mv -v usr/vmware/ftplugins.conf etc/vmware
 
 pushd usr/lib/vmware/view/html5mmr
 find . -type f | xargs chmod 644
-chmod 0755 \
-  HTML5VideoPlayer \
-  chrome_sandbox \
-  lib*.so \
-
 popd
 
-chmod 0755 usr/lib/vmware/view/vdpService/webrtcRedir/libwebrtc_sharedlib.so
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
 
@@ -289,16 +260,18 @@ rm -frv \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
   usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/lib/vmware/view/vdpService/webrtcRedir/udevadm \
   usr/patches \
   usr/README* \
   usr/vmware \
+
+find . -type f | xargs file | grep ELF | cut -d: -f1 | xargs chmod 755
 
 echo 'BINDIR="%{_bindir}"' > etc/vmware/bootstrap
 echo 'BINDIR="%{_bindir}"' > etc/vmware-vix/bootstrap
 echo "/usr/lib/pcoip/vchan_plugins/libvdpservice.so" > etc/vmware/vdp/host_overlay_plugins/config
 
 patch -p1 ./%{_datadir}/applications/vmware-view.desktop %{PATCH0}
-patch -p1 usr/lib/vmware/view/env/env_utils.sh %{PATCH1}
 
 desktop-file-validate ./%{_datadir}/applications/vmware-view.desktop
 
@@ -417,7 +390,6 @@ fi
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/config
 %{_prefix}/lib/vmware/view/dct
 %dir %{_prefix}/lib/vmware/view/env
-%{_prefix}/lib/vmware/view/env/env_utils.sh
 %{_prefix}/lib/vmware/view/env/vmware-view.info
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
 %{_prefix}/lib/vmware/libclientSdkCPrimitive.so
@@ -478,7 +450,7 @@ fi
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
 %ifarch x86_64
-%{_prefix}/lib/vmware/libx264.so.157.6
+%{_prefix}/lib/vmware/libx264.so.164.5
 %endif
 
 %files smartcard
@@ -507,11 +479,6 @@ fi
 %{_prefix}/lib/vmware/view/integratedPrinting/vmware-print-redir-client
 %{_prefix}/lib/vmware/view/vdpService/libvmwprvdpplugin.so
 
-%files media-provider
-%dir %{_prefix}/lib/vmware/mediaprovider
-%{_prefix}/lib/vmware/mediaprovider/libV264.so
-%{_prefix}/lib/vmware/mediaprovider/libVMWMediaProvider.so
-
 %files mmr
 %{_prefix}/lib/vmware/view/vdpService/libtsmmrClient.so
 
@@ -535,6 +502,11 @@ fi
 %endif
 
 %changelog
+* Sun Apr 16 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2303.8.9.0.21435420-1
+- update to 2303 (8.9.0-21435420)
+- add missing dependency on opensc to smartcard support subpackage
+- drop media-provider subpackage (Skype no longer supported upstream)
+
 * Mon Mar 13 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2212.8.8.0.21079016-1
 - update to 2212 (8.8.0.21079016)
 
