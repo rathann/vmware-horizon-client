@@ -2,10 +2,10 @@
 %undefine _enable_debug_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   24FQ1
-%global yymm   2303
-%global ver    8.9.0
-%global rel    21435420
+%global cart   24FQ2
+%global yymm   2306
+%global ver    8.10.0
+%global rel    21964631
 %global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
@@ -30,7 +30,6 @@ Source14: vmware-usbarbitrator.preset
 Source15: vmware-ftsprhv.preset
 Source16: vmware-ftscanhv.preset
 Patch0: %{name}-desktop.patch
-Patch2: %{name}-systemd.patch
 License: VMware
 ExclusiveArch: armv7hl x86_64
 BuildRequires: chrpath
@@ -63,7 +62,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|avcodec\\.so\\.59\|avutil\\.so\\.57\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -101,9 +100,10 @@ Requires Horizon Agent 7.0 or later on the virtual desktop.
 
 %package pcoip
 Summary: PCoIP support plugin for VMware Horizon Client
-Requires: libavcodec.so.58%{mark64}
-Requires: libavutil.so.56%{mark64}
 Requires: %{name} = %{version}-%{release}
+Provides: bundled(libavcodec) = 5.1.2
+Provides: bundled(libavformat) = 5.1.2
+Provides: bundled(libavutil) = 5.1.2
 Provides: bundled(libpng) = 1.6.37
 Provides: bundled(pcoip-soft-clients) = 3.75
 Provides: bundled(openssl) = 1.0.2w
@@ -211,12 +211,18 @@ pushd %{vhc_arch}
 for f in \
   VMware-Horizon-Client-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+%ifarch x86_64
+  VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+%endif
+; do
+  tar xzf ${f} -C %{buildroot} --strip-components=1
+done
+for f in \
   VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %ifarch x86_64
   VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %endif
 ; do
   tar xzf ${f} -C %{buildroot}/usr --strip-components=1
@@ -225,7 +231,6 @@ popd
 
 pushd %{buildroot}
 
-mv -v usr/{doc,share/doc/%{name}}
 mv -v usr/lib/vmware{/view/lib,}/libclientSdkCPrimitive.so
 mv -v usr/lib{,/vmware}/libpcoip_client.so
 %ifarch armv7hl
@@ -234,7 +239,6 @@ chrpath -d usr/lib/vmware/libcurl.so.4
 %endif
 %ifarch x86_64
 mv -v usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd ./%{_bindir}
-mv -v usr/vmware/ftplugins.conf etc/vmware
 
 pushd usr/lib/vmware/view/html5mmr
 find . -type f | xargs chmod 644
@@ -244,7 +248,8 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 %endif
 
 rm -frv \
-  usr/init.d \
+  etc/init.d \
+  usr/init.d/vmware-USBArbitrator \
   usr/lib/vmware/gcc \
   usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libffi.so.6 \
@@ -259,10 +264,12 @@ rm -frv \
   usr/lib/vmware/view/html5mmr/libhtml5Client.so \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
-  usr/lib/vmware/view/{software,vaapi{,2},vdpau} \
+  usr/lib/vmware/view/vaapi{,2.7} \
   usr/lib/vmware/view/vdpService/webrtcRedir/udevadm \
-  usr/patches \
-  usr/README* \
+  usr/README \
+  usr/share/doc/%{name}/patches \
+  usr/share/doc/%{name}/scannerClient/README \
+  usr/share/doc/%{name}/serialPortClient/README \
   usr/vmware \
 
 find . -type f | xargs file | grep ELF | cut -d: -f1 | xargs chmod 755
@@ -278,9 +285,8 @@ desktop-file-validate ./%{_datadir}/applications/vmware-view.desktop
 install -pm0644 %{S:10} etc/vmware
 install -pm0644 %{S:11} ./%{_unitdir}
 %ifarch x86_64
-patch -p1 usr/systemd/system/ftscanhv.service %{PATCH2}
-mv usr/systemd/system/ftsprhv.service ./%{_unitdir}/
-mv usr/systemd/system/ftscanhv.service ./%{_unitdir}/
+mv systemd/system/ftsprhv.service ./%{_unitdir}/
+mv systemd/system/ftscanhv.service ./%{_unitdir}/
 install -pm0644 %{S:15} ./%{_presetdir}/96-ftsprhv.preset
 install -pm0644 %{S:16} ./%{_presetdir}/96-ftscanhv.preset
 %endif
@@ -288,13 +294,6 @@ install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-usbarbitrator.preset
 
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
 ln -s ../../../../%{_lib}/pkcs11/opensc-pkcs11.so usr/lib/vmware/view/pkcs11/libopenscpkcs11.so
-pushd usr/lib/vmware/view
-for v in software vaapi2 vdpau ; do
-  mkdir ${v}
-  ln -s ../../../../lib64/libavcodec.so.58 ${v}/
-  ln -s ../../../../lib64/libavutil.so.56 ${v}/
-done
-popd
 
 popd
 
@@ -502,6 +501,11 @@ fi
 %endif
 
 %changelog
+* Fri Jul 07 2023 Dominik Mierzejewski <dominik@greysector.net> 2306-8.10.0-21964631-1
+- update to 2306 (8.10.0-21964631)
+- drop unnecessary patch
+- retain bundled FFmpeg-5.1.2 libraries (but drop those linked with old libva)
+
 * Sun Apr 16 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2303.8.9.0.21435420-1
 - update to 2303 (8.9.0-21435420)
 - add missing dependency on opensc to smartcard support subpackage
