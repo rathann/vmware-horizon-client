@@ -37,10 +37,12 @@ BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
 BuildRequires: systemd-rpm-macros
 Provides: bundled(atk) = 2.28.1
+Provides: bundled(atkmm) = 2.22.7
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
 Provides: bundled(curl) = 7.74
+Provides: bundled(glibmm24) = 2.44.0
 Provides: bundled(gtkmm30) = 3.10.1
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(icu) = 60.2
@@ -50,6 +52,7 @@ Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
 Provides: bundled(openssl) = 1.0.2y
 Provides: bundled(opus) = 1.1.4.60
+Provides: bundled(pangomm) = 2.34.0
 Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.11
 Provides: %{name}-seamless-window = %{version}-%{release}
@@ -248,14 +251,9 @@ rm -frv \
   etc/init.d \
   usr/init.d/vmware-USBArbitrator \
   usr/lib/vmware/gcc \
-  usr/lib/vmware/libatkmm-1.6.so.1 \
   usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libffi.so.6 \
-  usr/lib/vmware/libgdkmm-3.0.so.1 \
-  usr/lib/vmware/libgiomm-2.4.so.1 \
-  usr/lib/vmware/libglibmm-2.4.so.1 \
   usr/lib/vmware/libpcre.so.1 \
-  usr/lib/vmware/libpangomm-1.4.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libsigc-2.0.so.0 \
   usr/lib/vmware/libv4l2.so.0 \
@@ -392,11 +390,16 @@ fi
 %{_prefix}/lib/vmware/view/dct
 %dir %{_prefix}/lib/vmware/view/env
 %{_prefix}/lib/vmware/view/env/vmware-view.info
+%{_prefix}/lib/vmware/libatkmm-1.6.so.1
 %{_prefix}/lib/vmware/libclientSdkCPrimitive.so
 %{_prefix}/lib/vmware/libcrtbora.so
 %{_prefix}/lib/vmware/libcrypto.so.1.0.2
 %{_prefix}/lib/vmware/libcurl.so.4
+%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
+%{_prefix}/lib/vmware/libgiomm-2.4.so.1
+%{_prefix}/lib/vmware/libglibmm-2.4.so.1
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
+%{_prefix}/lib/vmware/libpangomm-1.4.so.1
 %{_prefix}/lib/vmware/librtavCliLib.so
 %{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
@@ -502,7 +505,6 @@ fi
 - update to 2306 (8.10.0-21964631)
 - drop unnecessary patch
 - retain bundled FFmpeg-5.1.2 libraries (but drop those linked with old libva)
-- unbundle atkmm, glibmm2.4, gtkmm3.0 (except libgtkmm-3.0.so.1) and pangomm
 
 * Sun Apr 16 2023 Dominik 'Rathann' Mierzejewski <dominik@greysector.net> 2303.8.9.0.21435420-1
 - update to 2303 (8.9.0-21435420)
