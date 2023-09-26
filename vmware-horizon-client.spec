@@ -18,7 +18,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2
+Release: 3
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -498,6 +498,9 @@ fi
 %endif
 
 %changelog
+* Tue Sep 26 2023 Dominik Mierzejewski <dominik@greysector.net> 2306-8.10.0-21964631-3
+- unbundle GDK/GTK libraries again, the display errors were unrelated
+
 * Mon Jul 10 2023 Dominik Mierzejewski <dominik@greysector.net> 2306-8.10.0-21964631-2
 - retain bundled GDK/GTK libraries to fix display errors
 
