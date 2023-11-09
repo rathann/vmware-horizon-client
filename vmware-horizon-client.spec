@@ -24,6 +24,7 @@ URL: https://www.vmware.com/products/horizon.html
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
 Source1: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/rn/vmware-horizon-client-for-linux-%{yymm}-release-notes/vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 Source2: https://docs.vmware.com/en/VMware-Horizon-Client-for-Linux/%{yymm}/horizon-client-linux-installation.pdf
+Source3: https://www.vmware.com/content/dam/digitalmarketing/vmware/en/pdf/agreements/vmware-software-exhibit.pdf
 Source10: usbarb.rules
 Source11: vmware-usbarbitrator.service
 Source14: vmware-usbarbitrator.preset
@@ -191,7 +192,7 @@ USB Redirection support plugin for VMware Horizon Client.
 
 %prep
 %setup -q -n VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}
-cp -p %{S:1} %{S:2} ./
+cp -p %{S:1} %{S:2} %{S:3} ./
 
 %build
 
@@ -371,6 +372,7 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files -f vmware-view.lang
+%license vmware-software-exhibit.pdf
 %license %{_docdir}/%{name}/open_source_licenses.txt
 %doc vmware-horizon-client-for-linux-%{yymm}-release-notes.pdf
 %doc horizon-client-linux-installation.pdf
