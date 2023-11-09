@@ -2,10 +2,10 @@
 %undefine _enable_debug_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   24FQ2
-%global yymm   2306
-%global ver    8.10.0
-%global rel    21964631
+%global cart   24FQ3
+%global yymm   2309
+%global ver    8.11.0
+%global rel    22660930
 %global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
@@ -41,7 +41,6 @@ Provides: bundled(atk) = 2.28.1
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
-Provides: bundled(curl) = 7.74
 Provides: bundled(gtkmm30) = 3.10.1
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(icu) = 60.2
@@ -49,7 +48,6 @@ Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
-Provides: bundled(openssl) = 1.0.2y
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.11
@@ -60,7 +58,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(atkmm-1\\.6\\.so\\.1\|avcodec\\.so\\.59\|avutil\\.so\\.57\|curl\\.so\\.4\|g\(io\|lib\)mm-2\\.4\\.so\\.1\|g\(dk\|tk\)mm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|\(crypto\|ssl\)\\.so\\.1\\.0\\.2\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.59\|avutil\\.so\\.57\|gtkmm-3\\.0\\.so\\.1\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -209,21 +207,15 @@ pushd %{vhc_arch}
 for f in \
   VMware-Horizon-Client-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %ifarch x86_64
+  VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
+  VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
   VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
 %endif
 ; do
   tar xzf ${f} -C %{buildroot} --strip-components=1
-done
-for f in \
-  VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-%ifarch x86_64
-  VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-%endif
-; do
-  tar xzf ${f} -C %{buildroot}/usr --strip-components=1
 done
 popd
 
@@ -237,6 +229,7 @@ chrpath -d usr/lib/vmware/libcurl.so.4
 %endif
 %ifarch x86_64
 mv -v usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd ./%{_bindir}
+mv -v usr/lib/vmware/view/usb/vmware-usbarbitrator ./%{_bindir}
 
 pushd usr/lib/vmware/view/html5mmr
 find . -type f | xargs chmod 644
@@ -247,10 +240,13 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 
 rm -frv \
   etc/init.d \
-  usr/init.d/vmware-USBArbitrator \
+  etc/udev \
+  usr/lib/vmware/fips.so \
   usr/lib/vmware/gcc \
   usr/lib/vmware/libatkmm-1.6.so.1 \
   usr/lib/vmware/libcairomm-1.0.so.1 \
+  usr/lib/vmware/libcrypto.so.3 \
+  usr/lib/vmware/libcurl.so.4 \
   usr/lib/vmware/libffi.so.6 \
   usr/lib/vmware/libgdkmm-3.0.so.1 \
   usr/lib/vmware/libgiomm-2.4.so.1 \
@@ -259,6 +255,7 @@ rm -frv \
   usr/lib/vmware/libpangomm-1.4.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libsigc-2.0.so.0 \
+  usr/lib/vmware/libssl.so.3 \
   usr/lib/vmware/libv4l2.so.0 \
   usr/lib/vmware/libv4lconvert.so.0 \
   usr/lib/vmware/libXss.so.1 \
@@ -267,9 +264,10 @@ rm -frv \
   usr/lib/vmware/view/html5mmr/libhtml5Client.so \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
+  usr/lib/vmware/view/urlRedirection/install-url-redirection.py \
   usr/lib/vmware/view/vaapi{,2.7} \
   usr/lib/vmware/view/vdpService/webrtcRedir/udevadm \
-  usr/README \
+  README \
   usr/share/doc/%{name}/patches \
   usr/share/doc/%{name}/scannerClient/README \
   usr/share/doc/%{name}/serialPortClient/README \
@@ -396,11 +394,8 @@ fi
 %{_prefix}/lib/vmware/view/env/vmware-view.info
 %{_prefix}/lib/vmware/libclientSdkCPrimitive.so
 %{_prefix}/lib/vmware/libcrtbora.so
-%{_prefix}/lib/vmware/libcrypto.so.1.0.2
-%{_prefix}/lib/vmware/libcurl.so.4
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
 %{_prefix}/lib/vmware/librtavCliLib.so
-%{_prefix}/lib/vmware/libssl.so.1.0.2
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
@@ -500,6 +495,10 @@ fi
 %endif
 
 %changelog
+* Thu Nov 09 2023 Dominik Mierzejewski <dominik@greysector.net> 2309.8.11.0.22660930-3
+- update to 2309 (8.11.0-22660930)
+- unbundle curl and openssl
+
 * Tue Sep 26 2023 Dominik Mierzejewski <dominik@greysector.net> 2306-8.10.0-21964631-3
 - unbundle GDK/GTK libraries again, the display errors were unrelated
 
