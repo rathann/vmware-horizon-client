@@ -1,7 +1,7 @@
-diff -up vmware-horizon-client-2012-8.1.0-17349998/x86_64/usr/share/applications/vmware-view.desktop.orig vmware-horizon-client-2012-8.1.0-17349998/x86_64/usr/share/applications/vmware-view.desktop
---- vmware-horizon-client-2012-8.1.0-17349998/x86_64/usr/share/applications/vmware-view.desktop.orig	2020-12-20 10:02:46.000000000 +0100
-+++ vmware-horizon-client-2012-8.1.0-17349998/x86_64/usr/share/applications/vmware-view.desktop	2021-01-12 13:21:34.200275414 +0100
-@@ -1,9 +1,8 @@
+diff -up vmware-horizon-client-2312.8.12.0.23149323-1.x86_64/usr/share/applications/vmware-view.desktop.orig vmware-horizon-client-2312.8.12.0.23149323-1.x86_64/usr/share/applications/vmware-view.desktop
+--- vmware-horizon-client-2312.8.12.0.23149323-1.x86_64/usr/share/applications/vmware-view.desktop.orig	2024-01-19 09:06:57.000000000 +0100
++++ vmware-horizon-client-2312.8.12.0.23149323-1.x86_64/usr/share/applications/vmware-view.desktop	2024-02-20 11:24:55.051806303 +0100
+@@ -1,10 +1,9 @@
  [Desktop Entry]
 -Encoding=UTF-8
  Type=Application
@@ -11,5 +11,6 @@ diff -up vmware-horizon-client-2012-8.1.0-17349998/x86_64/usr/share/applications
  MimeType=x-scheme-handler/vmware-view
 -Categories=Application;Network;
 +Categories=Network;
+ Actions=about-window;
  # TRANSLATORS: Ignore this string; do not translate.
  Name=VMware Horizon Client

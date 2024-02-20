@@ -2,10 +2,10 @@
 %undefine _enable_debug_packages
 %undefine _unique_build_ids
 %global _no_recompute_build_ids 1
-%global cart   24FQ3
-%global yymm   2309
-%global ver    8.11.0
-%global rel    22660930
+%global cart   24FQ4
+%global yymm   2312
+%global ver    8.12.0
+%global rel    23149323
 %global fver   %{yymm}-%{ver}-%{rel}
 %ifarch x86_64
 %global mark64 ()(64bit)
@@ -18,7 +18,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 3
+Release: 1
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -58,7 +58,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(avcodec\\.so\\.59\|avutil\\.so\\.57\|gtkmm-3\\.0\\.so\\.1\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.59\|avutil\\.so\\.57\|gtkmm-3\\.0\\.so\\.1\|Microsoft.SlimCV.VBM\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -433,6 +433,7 @@ fi
 %{_prefix}/lib/vmware/libpcoip_client_neon.so
 %endif
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
+%{_prefix}/lib/vmware/view/vdpService/libMicrosoft.SlimCV.VBM.so
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
 %{_prefix}/lib/vmware/view/vdpService/librdeSvc.so
 %{_prefix}/lib/vmware/view/software
@@ -495,6 +496,9 @@ fi
 %endif
 
 %changelog
+* Tue Feb 20 2024 Dominik Mierzejewski <dominik@greysector.net> 2312.8.12.0.23149323-1
+- update to 2312 (8.12.0-23149323)
+
 * Thu Nov 09 2023 Dominik Mierzejewski <dominik@greysector.net> 2309.8.11.0.22660930-3
 - update to 2309 (8.11.0-22660930)
 - unbundle curl and openssl
