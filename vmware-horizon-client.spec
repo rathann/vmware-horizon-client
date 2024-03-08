@@ -23,7 +23,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1
+Release: 1%{?dist}
 URL: https://www.vmware.com/products/horizon.html
 # https://customerconnect.vmware.com/en/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.vmware.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -53,7 +53,10 @@ Provides: bundled(libjpeg-turbo) = 1.4.2
 Provides: bundled(libwebrtc) = 90
 Provides: bundled(libxml2) = 2.9.9
 Provides: bundled(mechanical-fonts) = 1.00
-%{?with_bundled_ssl:Provides: bundled(openssl) = 3.0.12}
+%if %{with bundled_ssl}
+Provides: bundled(curl) = 8.5.0
+Provides: bundled(openssl) = 3.0.12
+%endif
 Provides: bundled(opus) = 1.1.4.60
 Provides: bundled(speex) = 1.2rc3
 Provides: bundled(zlib) = 1.2.11
@@ -64,7 +67,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(avcodec\\.so\\.59\|avutil\\.so\\.57\|gtkmm-3\\.0\\.so\\.1%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.59\|avutil\\.so\\.57\|gtkmm-3\\.0\\.so\\.1%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|json_linux-gcc-4.1.1_libmt\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -252,9 +255,9 @@ rm -frv \
   usr/lib/vmware/libcairomm-1.0.so.1 \
 %if %{without bundled_ssl}
   usr/lib/vmware/libcrypto.so.3 \
+  usr/lib/vmware/libcurl.so.4 \
   usr/lib/vmware/libssl.so.3 \
 %endif
-  usr/lib/vmware/libcurl.so.4 \
   usr/lib/vmware/libffi.so.6 \
   usr/lib/vmware/libgdkmm-3.0.so.1 \
   usr/lib/vmware/libgiomm-2.4.so.1 \
@@ -403,6 +406,7 @@ fi
 %{_prefix}/lib/vmware/libcrtbora.so
 %if %{with bundled_ssl}
 %{_prefix}/lib/vmware/libcrypto.so.3
+%{_prefix}/lib/vmware/libcurl.so.4
 %{_prefix}/lib/vmware/libssl.so.3
 %endif
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
@@ -509,7 +513,7 @@ fi
 %changelog
 * Tue Feb 20 2024 Dominik Mierzejewski <dominik@greysector.net> 2312.8.12.0.23149323-1
 - update to 2312 (8.12.0-23149323)
-- keep bundled OpenSSL due to missing symbols in Fedora < 40 build
+- keep bundled CURL and OpenSSL due to missing symbols in Fedora < 40 build
 
 * Thu Nov 09 2023 Dominik Mierzejewski <dominik@greysector.net> 2309.8.11.0.22660930-3
 - update to 2309 (8.11.0-22660930)
