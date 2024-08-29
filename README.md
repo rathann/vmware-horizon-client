@@ -3,15 +3,15 @@ VMware Horizon Client for Linux RPM package for Fedora
 
 by Dominik Mierzejewski
 
-Last-Updated: Mon 28 Mar 2022
+Last-Updated: Thu 29 Aug 2024
 
 Disclaimer
 ----------
 VMware doesn't support running the Horizon Client for Linux on Fedora, only on
-RHEL 8.8+ and 9.2+.
+RHEL 8.10 and 9.4.
 VMware Horizon Client EULA does not permit redistribution of their binaries, so
 this package exists as spec file, support files and patches only. Help with
-obtaining permission from VMware to distribute binaries is welcome.
+obtaining permission from Broadcom to distribute binaries is welcome.
 
 Building
 --------
@@ -19,8 +19,8 @@ Building
 $ git clone https://gitlab.com/greysector/rpms/vmware-horizon-client.git
 $ cd vmware-horizon-client
 $ spectool -g vmware-horizon-client.spec
-$ fedpkg --release f38 srpm
-$ mock -r fedora-38-x86_64 vmware-horizon-client-2306.8.10.0.21964631-1.src.rpm
+$ fedpkg --release f40 srpm
+$ mock -r fedora-40-x86_64 vmware-horizon-client-2406.8.13.0.9995429239-1.fc40.src.rpm
 ```
 
 Dependencies
@@ -29,15 +29,15 @@ The package unbundles several included libraries and uses system versions
 instead:
 * atkmm
 * cairomm
+* curl
 * glibmm2.4
 * gtkmm3.0 (except libgtkmm-3.0.so.1)
-* libffi
-* libpcre
 * libpng
 * libsigc++
-* libXss
+* openssl
 * pangomm
 * zlib
+* vulkan-loader
 
 Known issues
 ------------
