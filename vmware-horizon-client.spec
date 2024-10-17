@@ -14,16 +14,13 @@
 %global mark64 %nil
 %global vhc_arch armhf
 %endif
-%if 0%{?fedora} > 39
-%bcond bundled_ssl 0
-%else
 %bcond bundled_ssl 1
-%endif
+%bcond bundled_gtk 1
 
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: https://docs.omnissa.com/category/VMware-Horizon
 # https://customerconnect.omnissa.com/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.omnissa.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -69,7 +66,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so\|gtkmm-3\\.0\\.so\\.1%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|cairomm-1\\.0\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -251,19 +248,22 @@ chrpath -d usr/lib/vmware/view/bin/ftscanhvd
 rm -frv \
   etc/init.d \
   etc/udev \
-  usr/lib/vmware/fips.so \
   usr/lib/vmware/gcc \
-  usr/lib/vmware/libatkmm-1.6.so.1 \
-  usr/lib/vmware/libcairomm-1.0.so.1 \
 %if %{without bundled_ssl}
+  usr/lib/vmware/fips.so \
   usr/lib/vmware/libcrypto.so.3 \
   usr/lib/vmware/libcurl.so.4 \
   usr/lib/vmware/libssl.so.3 \
 %endif
+%if %{without bundled_gtk}
+  usr/lib/vmware/libatkmm-1.6.so.1 \
+  usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libgdkmm-3.0.so.1 \
   usr/lib/vmware/libgiomm-2.4.so.1 \
   usr/lib/vmware/libglibmm-2.4.so.1 \
+  usr/lib/vmware/libgtkmm-3.0.so.1 \
   usr/lib/vmware/libpangomm-1.4.so.1 \
+%endif
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libsigc-2.0.so.0 \
   usr/lib/vmware/libz.so.1 \
@@ -397,11 +397,20 @@ fi
 %{_prefix}/lib/vmware/libclientSdkCPrimitive.so
 %{_prefix}/lib/vmware/libcrtbora.so
 %if %{with bundled_ssl}
+%{_prefix}/lib/vmware/fips.so
 %{_prefix}/lib/vmware/libcrypto.so.3
 %{_prefix}/lib/vmware/libcurl.so.4
 %{_prefix}/lib/vmware/libssl.so.3
 %endif
+%if %{with bundled_gtk}
+%{_prefix}/lib/vmware/libatkmm-1.6.so.1
+%{_prefix}/lib/vmware/libcairomm-1.0.so.1
+%{_prefix}/lib/vmware/libgdkmm-3.0.so.1
+%{_prefix}/lib/vmware/libgiomm-2.4.so.1
+%{_prefix}/lib/vmware/libglibmm-2.4.so.1
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
+%{_prefix}/lib/vmware/libpangomm-1.4.so.1
+%endif
 %{_prefix}/lib/vmware/librtavCliLib.so
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
@@ -503,6 +512,9 @@ fi
 %endif
 
 %changelog
+* Mon Sep 09 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-2
+- switch to bundled gtkmm, curl and openssl libraries
+
 * Thu Aug 29 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-1
 - update to 2406 (8.13.0-9995429239)
 - update upstream URLs
