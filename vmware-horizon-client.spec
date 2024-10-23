@@ -14,7 +14,7 @@
 %global mark64 %nil
 %global vhc_arch armhf
 %endif
-%bcond bundled_ssl 1
+%bcond bundled_ssl 0
 %bcond bundled_gtk 1
 
 Summary: Remote access client for VMware Horizon
