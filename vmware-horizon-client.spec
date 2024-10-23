@@ -64,7 +64,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|cairomm-1\\.0\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|sigc-2\\.0\\.so\\.0}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|sigc-2\\.0\\.so\\.0}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -245,7 +245,6 @@ rm -frv \
 %endif
 %if %{without bundled_gtk}
   usr/lib/vmware/libatkmm-1.6.so.1 \
-  usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libgdkmm-3.0.so.1 \
   usr/lib/vmware/libgiomm-2.4.so.1 \
   usr/lib/vmware/libglibmm-2.4.so.1 \
@@ -253,6 +252,7 @@ rm -frv \
   usr/lib/vmware/libpangomm-1.4.so.1 \
   usr/lib/vmware/libsigc-2.0.so.0 \
 %endif
+  usr/lib/vmware/libcairomm-1.0.so.1 \
   usr/lib/vmware/libpng16.so.16 \
   usr/lib/vmware/libz.so.1 \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
@@ -393,7 +393,6 @@ fi
 %endif
 %if %{with bundled_gtk}
 %{_prefix}/lib/vmware/libatkmm-1.6.so.1
-%{_prefix}/lib/vmware/libcairomm-1.0.so.1
 %{_prefix}/lib/vmware/libgdkmm-3.0.so.1
 %{_prefix}/lib/vmware/libgiomm-2.4.so.1
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
@@ -496,6 +495,7 @@ fi
 * Wed Oct 23 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-3
 - switch to bundled libsigc++20 (rhbz#2321251)
 - drop support for building for armv7hl
+- using system cairomm seems to prevent crashes
 
 * Mon Sep 09 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-2
 - switch to bundled gtkmm, curl and openssl libraries
