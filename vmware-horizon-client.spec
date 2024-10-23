@@ -7,13 +7,7 @@
 %global ver    8.13.0
 %global rel    9995429239
 %global fver   %{yymm}-%{ver}-%{rel}
-%ifarch x86_64
-%global mark64 ()(64bit)
 %global vhc_arch x64
-%else
-%global mark64 %nil
-%global vhc_arch armhf
-%endif
 %bcond bundled_ssl 0
 %bcond bundled_gtk 1
 
@@ -36,7 +30,7 @@ Source15: vmware-ftsprhv.preset
 Source16: vmware-ftscanhv.preset
 Patch0: %{name}-desktop.patch
 License: VMware
-ExclusiveArch: armv7hl x86_64
+ExclusiveArch: x86_64
 BuildRequires: chrpath
 BuildRequires: desktop-file-utils
 BuildRequires: %{_bindir}/execstack
@@ -63,7 +57,7 @@ Provides: %{name}-seamless-window = %{version}-%{release}
 Obsoletes: %{name}-media-provider < 2303.8.9.0.21435420
 Obsoletes: %{name}-seamless-window < 5.2.0.14604769
 Requires: %{_bindir}/pidof
-Requires: libudev.so.1%{mark64}
+Requires: libudev.so.1()(64bit)
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
 %global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|cairomm-1\\.0\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|sigc-2\\.0\\.so\\.0}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
@@ -94,7 +88,7 @@ Integrated Printing support plugin for VMware Horizon Client.
 %package mmr
 Summary: Multimedia Redirection support plugin for VMware Horizon Client
 Requires: %{name} = %{version}-%{release}
-Requires: libgstlibav.so%{mark64}
+Requires: libgstlibav.so()(64bit)
 Recommends: gstreamer1-vaapi%{_isa}
 
 %description mmr
@@ -119,12 +113,10 @@ Requires Horizon Agent 7.0.2 or later on the virtual desktop.
 %package rtav
 Summary: Real-Time Audio-Video support plugin for VMware Horizon Client
 Requires: %{name}-pcoip = %{version}-%{release}
-Requires: libspeex.so.1%{mark64}
-Requires: libtheoradec.so.1%{mark64}
-Requires: libtheoraenc.so.1%{mark64}
-%ifarch x86_64
+Requires: libspeex.so.1()(64bit)
+Requires: libtheoradec.so.1()(64bit)
+Requires: libtheoraenc.so.1()(64bit)
 Provides: bundled(x264-libs) = 0.164
-%endif
 
 %description rtav
 Real-Time Audio-Video support plugin for VMware Horizon Client.
@@ -136,7 +128,7 @@ Summary: Scanner redirection support plugin for VMware Horizon Client
 Provides: bundled(scanner_linux) = 2.6.3
 %{?systemd_requires}
 Requires: %{name} = %{version}-%{release}
-Requires: libudev.so.1%{mark64}
+Requires: libudev.so.1()(64bit)
 Requires(post): %{_sbindir}/semodule
 Requires(postun): %{_sbindir}/semodule
 
@@ -150,7 +142,7 @@ Requires Horizon Agent 7.8 or later on the virtual desktop.
 Summary: Serial port redirection support plugin for VMware Horizon Client
 Provides: bundled(serial_linux) = 2.6.3
 Requires: %{name} = %{version}-%{release}
-Requires: libudev.so.1%{mark64}
+Requires: libudev.so.1()(64bit)
 
 %description serialportclient
 Serial port redirection support plugin for VMware Horizon Client.
@@ -210,17 +202,15 @@ install -dm0755 %{buildroot}/usr/lib/vmware/view/pkcs11
 install -dm0755 %{buildroot}%{_datadir}/doc
 install -dm0755 %{buildroot}/var/log/vmware
 
-pushd %{vhc_arch}
+pushd x64
 for f in \
-  VMware-Horizon-Client-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-%ifarch x86_64
-  VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-  VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.%{vhc_arch}.tar.gz \
-%endif
+  VMware-Horizon-Client-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-PCoIP-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-USB-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-html5mmr-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-integratedPrinting-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-scannerClient-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
+  VMware-Horizon-serialportClient-%{yymm}-%{ver}-%{rel}.x64.tar.gz \
 ; do
   tar xzf ${f} -C %{buildroot} --strip-components=1
 done
@@ -230,11 +220,6 @@ pushd %{buildroot}
 
 mv -v usr/lib{,/vmware}/libclientSdkCPrimitive.so
 mv -v usr/lib{,/vmware}/libpcoip_client.so
-%ifarch armv7hl
-mv -v usr/lib{,/vmware}/libpcoip_client_neon.so
-chrpath -d usr/lib/vmware/libcurl.so.4
-%endif
-%ifarch x86_64
 mv -v usr/lib/vmware/view/integratedPrinting/prlinuxcupsppd ./%{_bindir}
 mv -v usr/lib/vmware/view/usb/vmware-eucusbarbitrator ./%{_bindir}
 
@@ -243,7 +228,6 @@ find . -type f | xargs chmod 644
 popd
 
 chrpath -d usr/lib/vmware/view/bin/ftscanhvd
-%endif
 
 rm -frv \
   etc/init.d \
@@ -291,12 +275,10 @@ desktop-file-validate ./%{_datadir}/applications/vmware-view.desktop
 
 install -pm0644 %{S:10} etc/vmware
 install -pm0644 %{S:11} ./%{_unitdir}
-%ifarch x86_64
 mv systemd/system/ftsprhv.service ./%{_unitdir}/
 mv systemd/system/ftscanhv.service ./%{_unitdir}/
 install -pm0644 %{S:15} ./%{_presetdir}/96-ftsprhv.preset
 install -pm0644 %{S:16} ./%{_presetdir}/96-ftscanhv.preset
-%endif
 install -pm0644 %{S:14} ./%{_presetdir}/96-vmware-eucusbarbitrator.preset
 
 ln -s ../../%{_lib}/libudev.so.1 usr/lib/vmware/libudev.so.0
@@ -419,12 +401,10 @@ fi
 %{_prefix}/lib/vmware/libudev.so.0
 %{_prefix}/lib/vmware/libudpProxyLib.so
 %{_prefix}/lib/vmware/libvmwarebase.so
-%ifarch x86_64
 %{_prefix}/lib/vmware/rdpvcbridge/ftnlses3hv.so
 %{_prefix}/lib/vmware/liburlFilterPlugin.so
 %{_prefix}/lib/vmware/view/bin/vmware-urlFilter
 %{_bindir}/vmware-url-filter
-%endif
 %dir %{_prefix}/lib/vmware/rdpvcbridge
 %attr(0644,root,root) %config(noreplace) %ghost %{_prefix}/lib/vmware/settings
 %dir %{_prefix}/lib/vmware/view
@@ -450,9 +430,6 @@ fi
 %{_prefix}/lib/vmware/rdpvcbridge/freerdp_plugins.conf
 %{_prefix}/lib/vmware/libffi.so
 %{_prefix}/lib/vmware/libpcoip_client.so
-%ifarch armv7hl
-%{_prefix}/lib/vmware/libpcoip_client_neon.so
-%endif
 %{_prefix}/lib/vmware/view/client/vmware-remotemks
 %{_prefix}/lib/vmware/view/vdpService/libMicrosoft.SlimCV.VBM.so
 %{_prefix}/lib/vmware/view/vdpService/libmksvchanclient.so
@@ -464,9 +441,7 @@ fi
 
 %files rtav
 %{_prefix}/lib/pcoip/vchan_plugins/libviewMMDevRedir.so
-%ifarch x86_64
 %{_prefix}/lib/vmware/libx264.so.164.5
-%endif
 
 %files smartcard
 %{_prefix}/lib/pcoip/vchan_plugins/libscredirvchanclient.so
@@ -482,7 +457,6 @@ fi
 %{_prefix}/lib/vmware/view/usb/libvmware-view-usbd.so
 %{_prefix}/lib/vmware/view/vdpService/libusbRedirectionClient.so
 
-%ifarch x86_64
 %files html5mmr
 %{_prefix}/lib/vmware/view/html5mmr
 %{_prefix}/lib/vmware/view/vdpService/libhtml5Client.so
@@ -513,11 +487,11 @@ fi
 
 %files tsdr
 %{_prefix}/lib/vmware/view/vdpService/libtsdrClient.so
-%endif
 
 %changelog
 * Wed Oct 23 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-3
 - switch to bundled libsigc++20
+- drop support for building for armv7hl
 
 * Mon Sep 09 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-2
 - switch to bundled gtkmm, curl and openssl libraries
