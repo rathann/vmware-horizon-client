@@ -39,7 +39,11 @@ Provides: bundled(atk) = 2.28.1
 Provides: bundled(boost) = 1.67
 Provides: bundled(bzip2) = 1.0.6
 Provides: bundled(c-ares) = 1.13.0
+%if %{with bundled_gtk}
+Provides: bundled(atkmm30) = 2.22.7
 Provides: bundled(gtkmm30) = 3.10.1
+Provides: bundled(libsigc++20)
+%endif
 Provides: bundled(hal) = 0.5.12
 Provides: bundled(icu) = 60.2
 Provides: bundled(libjpeg-turbo) = 1.4.2
@@ -490,7 +494,7 @@ fi
 
 %changelog
 * Wed Oct 23 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-3
-- switch to bundled libsigc++20
+- switch to bundled libsigc++20 (rhbz#2321251)
 - drop support for building for armv7hl
 
 * Mon Sep 09 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-2
