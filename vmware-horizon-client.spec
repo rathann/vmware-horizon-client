@@ -20,7 +20,7 @@
 Summary: Remote access client for VMware Horizon
 Name: vmware-horizon-client
 Version: %{yymm}.%{ver}.%{rel}
-Release: 2%{?dist}
+Release: 3%{?dist}
 URL: https://docs.omnissa.com/category/VMware-Horizon
 # https://customerconnect.omnissa.com/downloads/info/slug/desktop_end_user_computing/vmware_horizon_clients/horizon_8
 Source0: https://download3.omnissa.com/software/CART%{cart}_LIN_%{yymm}_TARBALL/VMware-Horizon-Client-Linux-%{yymm}-%{ver}-%{rel}.tar.gz
@@ -66,7 +66,7 @@ Requires: %{_bindir}/pidof
 Requires: libudev.so.1%{mark64}
 
 %global __provides_exclude_from ^%{_prefix}/lib/(vmware|pcoip)/.*$
-%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|cairomm-1\\.0\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
+%global __requires_exclude ^lib\(avcodec\\.so\\.60\|avutil\\.so\\.58\|ffi\\.so%{?with_bundled_gtk:\|atkmm-1\\.6\\.so\\.1\|cairomm-1\\.0\\.so\\.1\|gdkmm-3\\.0\\.so\\.1\|giomm-2\\.4\\.so\\.1\|glibmm-2\\.4\\.so\\.1\|gtkmm-3\\.0\\.so\\.1\|pangomm-1\\.4\\.so\\.1\|sigc-2\\.0\\.so\\.0}%{?with_bundled_ssl:\|\(crypto\|ssl\)\\.so\\.3\|curl\\.so\\.4}\|udev\\.so\\.0\|x264\\.so\\.164\\.5\|\(cef\|clientSdkCPrimitive\|crtbora\|GLESv2\|Microsoft.SlimCV.VBM\|vmware\(base\|-view-usbd\)\)\\.so).*$
 
 %description
 Remote access client for VMware Horizon.
@@ -263,9 +263,9 @@ rm -frv \
   usr/lib/vmware/libglibmm-2.4.so.1 \
   usr/lib/vmware/libgtkmm-3.0.so.1 \
   usr/lib/vmware/libpangomm-1.4.so.1 \
+  usr/lib/vmware/libsigc-2.0.so.0 \
 %endif
   usr/lib/vmware/libpng16.so.16 \
-  usr/lib/vmware/libsigc-2.0.so.0 \
   usr/lib/vmware/libz.so.1 \
   usr/lib/vmware/view/html5mmr/libvulkan.so.1 \
   usr/lib/vmware/view/integratedPrinting/{integrated-printing-setup.sh,README} \
@@ -277,6 +277,9 @@ rm -frv \
   usr/share/doc/%{name}/serialPortClient/README \
 
 find . -type f | xargs file | grep ELF | cut -d: -f1 | xargs chmod 755
+%if %{with bundled_gtk}
+chrpath -d usr/lib/vmware/libsigc-2.0.so.0
+%endif
 
 echo 'BINDIR="%{_bindir}"' > etc/vmware/bootstrap
 echo 'BINDIR="%{_bindir}"' > etc/vmware-vix/bootstrap
@@ -410,6 +413,7 @@ fi
 %{_prefix}/lib/vmware/libglibmm-2.4.so.1
 %{_prefix}/lib/vmware/libgtkmm-3.0.so.1
 %{_prefix}/lib/vmware/libpangomm-1.4.so.1
+%{_prefix}/lib/vmware/libsigc-2.0.so.0
 %endif
 %{_prefix}/lib/vmware/librtavCliLib.so
 %{_prefix}/lib/vmware/libudev.so.0
@@ -512,6 +516,9 @@ fi
 %endif
 
 %changelog
+* Wed Oct 23 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-3
+- switch to bundled libsigc++20
+
 * Mon Sep 09 2024 Dominik Mierzejewski <dominik@greysector.net> 2406.8.13.0.9995429239-2
 - switch to bundled gtkmm, curl and openssl libraries
 
